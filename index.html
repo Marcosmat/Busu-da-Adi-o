@@ -54,7 +54,6 @@
   .bus-door-panel-left { transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
   .bus-door-panel-right { transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
   
-  /* CORREÇÃO AQUI: As portas agora deslizam 100% para os lados */
   .door-open .bus-door-panel-left { transform: translateX(-100%); }
   .door-open .bus-door-panel-right { transform: translateX(100%); }
 
@@ -103,6 +102,23 @@
 
   @keyframes pulseQuestion { 0%,100%{transform:scale(1)} 50%{transform:scale(1.15)} }
   .pulse-q { animation: pulseQuestion 0.8s infinite ease-in-out; }
+
+  /* ANIMAÇÃO DO BOTÃO PRÓXIMA VIAGEM */
+  @keyframes pulseNextStop {
+    0%, 100% {
+      transform: scale(1);
+      box-shadow: 0 4px 0 #1e293b;
+      background-color: #fbbf24; /* amber-400 */
+    }
+    50% {
+      transform: scale(1.03);
+      box-shadow: 0 6px 0 #1e293b, 0 0 20px rgba(251, 191, 36, 0.8);
+      background-color: #fde047; /* yellow-300 */
+    }
+  }
+  .next-stop-blink {
+    animation: pulseNextStop 1.2s infinite ease-in-out;
+  }
 </style>
 </head>
 <body class="bg-gradient-to-b from-sky-400 via-sky-200 to-emerald-500 items-center justify-between p-1 md:p-4 text-slate-800">
@@ -224,7 +240,8 @@
 
     <!-- Botão Próxima Parada (Oculto por padrão) -->
     <div id="nextStopArea" class="hidden">
-      <button id="nextStopBtn" class="w-full bg-amber-400 hover:bg-amber-300 text-slate-900 font-black text-lg md:text-2xl py-3 md:py-4 rounded-xl border-3 border-slate-800 shadow-[0_4px_0_#1e293b] active:translate-y-1 active:shadow-none transition-all uppercase tracking-wider">
+      <!-- Adicionada a classe next-stop-blink aqui -->
+      <button id="nextStopBtn" class="next-stop-blink w-full bg-amber-400 hover:bg-amber-300 text-slate-900 font-black text-lg md:text-2xl py-3 md:py-4 rounded-xl border-3 border-slate-800 shadow-[0_4px_0_#1e293b] active:translate-y-1 active:shadow-none transition-all uppercase tracking-wider">
         Próxima Viagem 🚀
       </button>
     </div>
