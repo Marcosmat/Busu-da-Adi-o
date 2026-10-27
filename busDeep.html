@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Busão dos Bichos - Terceiro Excluído</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { font-family: 'Fredoka', cursive, system-ui, sans-serif; user-select: none; -webkit-user-select: none; }
+
+  /* Previne rolagem e garante que o jogo ocupe a tela toda (Dynamic Viewport Height) */
+  body {
+    height: 100dvh;
+    width: 100vw;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  @keyframes busDrivingBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
+  }
+  .bus-driving { animation: busDrivingBounce 0.25s infinite ease-in-out; }
+
+  @keyframes spinWheel { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  .spinning-wheel { animation: spinWheel 0.4s linear infinite; }
+
+  @keyframes animalWalk {
+    0% { transform: translateY(0) rotate(0deg); }
+    25% { transform: translateY(-4px) rotate(-6deg); }
+    50% { transform: translateY(0) rotate(0deg); }
+    75% { transform: translateY(-4px) rotate(6deg); }
+    100% { transform: translateY(0) rotate(0deg); }
+  }
+  .walking-actor { animation: animalWalk 0.35s infinite linear; }
+
+  @keyframes waveHand {
+    0%, 100% { transform: scale(1) rotate(0deg); }
+    50% { transform: scale(1.15) rotate(12deg); }
+  }
+  .waving { animation: waveHand 0.6s infinite ease-in-out; }
+
+  .window-seat { background: #0f172a; transition: background-color 0.4s ease, box-shadow 0.4s ease; }
+  .window-seat.revealed { background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%); box-shadow: inset 0 0 10px rgba(56, 189, 248, 0.7); }
+
+  .animal-in-seat { opacity: 0; transform: scale(0.2); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); filter: blur(4px); }
+  .window-seat.revealed .animal-in-seat { opacity: 1; transform: scale(1); filter: blur(0); }
+
+  .bus-door-panel-left { transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+  .bus-door-panel-right { transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+  .door-open .bus-door-panel-left { transform: translateX(-100%); }
+  .door-open .bus-door-panel-right { transform: translateX(100%); }
+
+  .bus-ramp { transition: transform 0.4s ease, opacity 0.4s ease; transform-origin: top center; transform: scaleY(0); opacity: 0; }
+  .ramp-deployed .bus-ramp { transform: scaleY(1); opacity: 1; }
+
+  .pedestrian-actor {
+    position: absolute; font-size: clamp(1.5rem, 6vw, 2.2rem); z-index: 45;
+    transition: left 0.05s linear, top 0.05s linear;
+    filter: drop-shadow(0 3px 3px rgba(0,0,0,0.25));
+    display: flex; flex-direction: column; align-items: center;
+  }
+  .pedestrian-feet { display: flex; gap: 8px; margin-top: -6px; }
+  .foot { width: 6px; height: 4px; background: #334155; border-radius: 999px; }
+
+  .mystery-q {
+    position: absolute; font-size: clamp(1.2rem, 5vw, 1.8rem); font-weight: 900;
+    color: #f59e0b; text-shadow: 0 2px 4px rgba(0,0,0,0.35);
+    z-index: 50; pointer-events: none;
+    opacity: 0; transition: all 0.8s ease-out;
+  }
+
+  .option-btn {
+    min-height: clamp(3rem, 8vh, 4.5rem); padding: 0.5rem;
+    font-size: clamp(1.25rem, 5vw, 2rem); font-weight: 900;
+    border: 3px solid #1e293b; border-radius: 0.85rem;
+    background: white; box-shadow: 0 4px 0 #1e293b;
+    cursor: pointer; transition: transform 0.12s, background-color 0.15s, box-shadow 0.12s;
+    color: #1e293b; display: flex; align-items: center; justify-content: center;
+  }
+  .option-btn:hover { background: #fef08a; transform: translateY(-2px); box-shadow: 0 6px 0 #1e293b; }
+  .option-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #1e293b; }
+  .option-btn.correct { background: #bbf7d0 !important; border-color: #16a34a !important; color: #14532d !important; animation: popCorrect 0.5s ease; }
+  .option-btn.wrong { background: #fecaca !important; border-color: #dc2626 !important; color: #7f1d1d !important; animation: shakeBox 0.4s; }
+  @keyframes popCorrect { 0%{transform:scale(1)} 50%{transform:scale(1.06)} 100%{transform:scale(1)} }
+  @keyframes shakeBox { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+
+  @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .options-appear { animation: fadeInUp 0.4s ease both; }
+
+  @keyframes pulseQuestion { 0%,100%{transform:scale(1)} 50%{transform:scale(1.15)} }
+  .pulse-q { animation: pulseQuestion 0.8s infinite ease-in-out; }
+</style>
+</head>
+<body class="bg-gradient-to-b from-sky-400 via-sky-200 to-emerald-500 items-center justify-between p-1 md:p-4 text-slate-800">
+
+  <header class="w-full max-w-4xl bg-white/95 backdrop-blur border-4 border-slate-800 rounded-2xl p-2 md:p-3 shadow-lg flex flex-wrap items-center justify-between gap-2 z-10 shrink-0">
+    <div class="flex items-center gap-2">
+      <span class="text-2xl md:text-3xl">🚌</span>
+      <div>
+        <h1 class="text-lg md:text-2xl font-bold leading-none">Busão dos Bichos</h1>
+        <p class="text-[10px] md:text-xs font-semibold text-slate-500">Terceiro Excluído</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-1 md:gap-3 font-bold text-xs md:text-base">
+      <button id="muteBtn" title="Som" class="bg-slate-100 border-2 border-slate-800 rounded-lg md:rounded-xl px-2 py-0.5 shadow-[0_2px_0_#1e293b] hover:bg-slate-200">🔊</button>
+      <div class="bg-amber-100 border-2 border-slate-800 rounded-lg md:rounded-xl px-2 md:px-3 py-1 flex items-center gap-1 shadow-[0_2px_0_#1e293b]">
+        <span>⭐</span><span id="scoreVal" class="text-amber-800">0</span>
+      </div>
+      <div class="bg-purple-100 border-2 border-slate-800 rounded-lg md:rounded-xl px-2 md:px-3 py-1 flex items-center gap-1 shadow-[0_2px_0_#1e293b]">
+        <span>📋</span><span id="questionVal" class="text-purple-800">0/10</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Palco Principal: verde escurecido para emerald-600 -->
+  <main id="gameStage" class="w-full max-w-4xl relative flex-1 bg-gradient-to-b from-sky-300 via-sky-100 to-emerald-600 rounded-3xl border-4 border-slate-800 overflow-hidden my-1 md:my-2 shadow-2xl">
+    
+    <div class="absolute top-2 left-4 text-2xl md:text-3xl opacity-80">☁️</div>
+    <div class="absolute top-4 right-8 text-3xl md:text-4xl opacity-70">☁️</div>
+
+    <!-- Ponto de Ônibus -->
+    <div class="absolute left-1/2 -translate-x-1/2 bottom-[30%] flex flex-col items-center z-10">
+      <div class="bg-rose-500 border-2 border-white text-white font-extrabold text-[9px] md:text-[11px] px-2 py-0.5 rounded-full shadow-md uppercase tracking-wider flex items-center gap-1">
+        <span>🚏</span> PONTO CENTRAL
+      </div>
+      <div class="w-2 h-10 md:h-14 bg-slate-400 border border-slate-700 shadow-inner"></div>
+      <div class="w-24 md:w-36 h-2 md:h-3 bg-stone-300 border border-slate-600 rounded-full shadow-md"></div>
+    </div>
+
+    <!-- Ônibus Responsivo -->
+    <div id="busContainer" class="absolute bottom-[15%] w-[92%] max-w-[580px] h-[100px] md:h-[125px] z-30 transition-all duration-300">
+      <div class="absolute -top-8 md:-top-10 left-1/2 -translate-x-1/2 hidden" id="mysteryBadge">
+        <div class="bg-purple-600 text-white font-black px-3 md:px-4 py-1 rounded-xl border-3 border-slate-800 shadow-lg text-lg md:text-xl pulse-q">❓</div>
+      </div>
+
+      <div id="busBody" class="relative w-full h-full bg-amber-400 border-4 border-slate-800 rounded-t-3xl rounded-b-xl shadow-[inset_0_-8px_0_#d97706] p-1.5 md:p-2 flex gap-1 md:gap-1.5 items-center">
+        <div class="absolute right-0 bottom-3 md:bottom-4 w-1.5 md:w-2 h-5 md:h-6 bg-yellow-200 border-2 border-slate-800 rounded-r-md shadow-[0_0_8px_#fef08a]"></div>
+
+        <!-- Porta -->
+        <div id="doorFrame" class="absolute right-[12%] bottom-0 w-[9%] h-[85%] bg-slate-900 border-t-2 border-x-2 border-slate-800 rounded-t-lg z-40 overflow-hidden flex shadow-inner">
+          <div class="bus-door-panel-left w-1/2 h-full bg-sky-200 border-r border-slate-800 p-0.5 flex flex-col justify-between">
+            <div class="w-full h-1/2 bg-sky-100 border border-slate-400 rounded-sm"></div>
+            <div class="w-full h-1/3 bg-slate-300 rounded-sm"></div>
+          </div>
+          <div class="bus-door-panel-right w-1/2 h-full bg-sky-200 border-l border-slate-800 p-0.5 flex flex-col justify-between">
+            <div class="w-full h-1/2 bg-sky-100 border border-slate-400 rounded-sm"></div>
+            <div class="w-full h-1/3 bg-slate-300 rounded-sm"></div>
+          </div>
+        </div>
+
+        <!-- Rampa -->
+        <div id="busRampContainer" class="bus-ramp absolute right-[10%] -bottom-[8px] w-[12%] h-2.5 md:h-3 bg-stone-400 border-2 border-slate-800 rounded-b-md z-30 shadow-md">
+          <div class="w-full h-full bg-yellow-400 border-t border-slate-600"></div>
+        </div>
+
+        <!-- Janelas (Grid responsivo) -->
+        <div class="w-full h-[55%] md:h-[64px] grid grid-cols-10 gap-0.5 md:gap-1 pr-[24%] pl-1">
+          <div class="window-seat rounded-md md:rounded-lg border-2 border-slate-800 flex items-center justify-center relative overflow-hidden"><span class="text-[7px] md:text-[9px] font-extrabold text-white/40 absolute top-0.5 left-1 hidden md:block">1</span><span id="seat0" class="animal-in-seat text-sm md:text-2xl"></span></div>
+          <div class="window-seat rounded-md md:rounded-lg border-2 border-slate-800 flex items-center justify-center relative overflow-hidden"><span class="text-[7px] md:text-[9px] font-extrabold text-white/40 absolute top-0.5 left-1 hidden md:block">2</span><span id="seat1" class="animal-in-seat text-sm md:text-2xl"></span></div>
+          <div class="window-seat rounded-md md:rounded-lg border-2 border-slate-800 flex items-center justify-center relative overflow-hidden"><span class="text-[7px] md:text-[9px] font-extrabold text-white/40 absolute top-0.5 left-1 hidden md:block">3</span><span id="seat2" class="animal-in-seat text-sm md:text-2xl"></span></div>
+          <div class="window-seat rounded-md md:rounded-lg border-2 border-slate-800 flex items-center justify-center relative overflow-hidden"><span class="text-[7px] md:text-[9px] font-extrabold text-white/40 absolute top-0.5 left-1 hidden md:block">4</span><span id="seat3" class="animal-in-seat text-sm md:text-2xl"></span></div>
+          <div class="window-seat rounded-md md:rounded-lg border-2 border-slate-800 flex items-center justify-center relative overflow-hidden"><span class="text-[7px] md:text-[9px] font-extrabold text-white/40 absolute top-0.5 left-1 hidden md:block">5</span><span id="seat4" class="animal-in-seat text-sm md:text-2xl"></span></div>
+          <div class="window-seat rounded-md md:rounded-lg border-2 border-slate-800 flex items-center justify-center relative overflow-hidden"><span class="text-[7px] md:text-[9px] font-extrabold text-white/40 absolute top-0.5 left-1 hidden md:block">6</span><span id="seat5" class="animal-in-seat text-sm md:text-2xl"></span></div>
+          <div class="window-seat rounded-md md:rounded-lg border-2 border-slate-800 flex items-center justify-center relative overflow-hidden"><span class="text-[7px] md:text-[9px] font-extrabold text-white/40 absolute top-0.5 left-1 hidden md:block">7</span><span id="seat6" class="animal-in-seat text-sm md:text-2xl"></span></div>
+          <div class="window-seat rounded-md md:rounded-lg border-2 border-slate-800 flex items-center justify-center relative overflow-hidden"><span class="text-[7px] md:text-[9px] font-extrabold text-white/40 absolute top-0.5 left-1 hidden md:block">8</span><span id="seat7" class="animal-in-seat text-sm md:text-2xl"></span></div>
+          <div class="window-seat rounded-md md:rounded-lg border-2 border-slate-800 flex items-center justify-center relative overflow-hidden"><span class="text-[7px] md:text-[9px] font-extrabold text-white/40 absolute top-0.5 left-1 hidden md:block">9</span><span id="seat8" class="animal-in-seat text-sm md:text-2xl"></span></div>
+          <div class="window-seat rounded-md md:rounded-lg border-2 border-slate-800 flex items-center justify-center relative overflow-hidden"><span class="text-[7px] md:text-[9px] font-extrabold text-white/40 absolute top-0.5 left-1 hidden md:block">10</span><span id="seat9" class="animal-in-seat text-sm md:text-2xl"></span></div>
+        </div>
+
+        <!-- Rodas -->
+        <div class="absolute -bottom-3 md:-bottom-4 left-[10%] w-8 h-8 md:w-10 md:h-10 bg-slate-900 border-4 border-slate-800 rounded-full flex items-center justify-center shadow-lg z-50">
+          <div id="wheel1" class="w-2 h-2 md:w-3 md:h-3 bg-slate-300 rounded-full border border-slate-800"></div>
+        </div>
+        <div class="absolute -bottom-3 md:-bottom-4 right-[15%] w-8 h-8 md:w-10 md:h-10 bg-slate-900 border-4 border-slate-800 rounded-full flex items-center justify-center shadow-lg z-50">
+          <div id="wheel2" class="w-2 h-2 md:w-3 md:h-3 bg-slate-300 rounded-full border border-slate-800"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="walkStage" class="absolute inset-0 pointer-events-none z-50"></div>
+
+    <!-- Calçada -->
+    <div class="absolute bottom-0 left-0 right-0 h-[28px] md:h-[38px] bg-slate-700 border-t-4 border-slate-800 flex items-center justify-around">
+      <div class="absolute -top-[8px] md:-top-[10px] left-0 right-0 h-[8px] md:h-[10px] bg-stone-300 border-t-2 border-slate-600"></div>
+      <div class="w-8 md:w-12 h-1 md:h-1.5 bg-amber-400 rounded-full"></div>
+      <div class="w-8 md:w-12 h-1 md:h-1.5 bg-amber-400 rounded-full"></div>
+      <div class="w-8 md:w-12 h-1 md:h-1.5 bg-amber-400 rounded-full"></div>
+      <div class="w-8 md:w-12 h-1 md:h-1.5 bg-amber-400 rounded-full"></div>
+      <div class="w-8 md:w-12 h-1 md:h-1.5 bg-amber-400 rounded-full"></div>
+    </div>
+  </main>
+
+  <!-- Footer (Controles) -->
+  <footer class="w-full max-w-4xl bg-white/95 backdrop-blur border-4 border-slate-800 rounded-2xl p-2 md:p-3 shadow-xl flex flex-col gap-2 z-10 shrink-0">
+    <div class="bg-sky-50 border-2 border-sky-300 rounded-lg md:rounded-xl p-1.5 md:p-2.5 text-center flex items-center justify-center gap-2 min-h-[40px] md:min-h-[48px]">
+      <span id="statusIcon" class="text-xl md:text-2xl animate-bounce">📢</span>
+      <p id="statusMsg" class="font-bold text-xs md:text-base text-slate-800 leading-tight">
+        Clique em "Iniciar Jogo" para começar!
+      </p>
+    </div>
+
+    <div id="optionsArea" class="hidden flex flex-col gap-1.5 md:gap-3">
+      <!-- Pergunta Única (Contraste) -->
+      <div id="questionPrompt" class="text-center"></div>
+      
+      <div id="optionsGrid" class="grid grid-cols-3 gap-1.5 md:gap-3"></div>
+    </div>
+  </footer>
+
+  <!-- Welcome Modal -->
+  <div id="modalOverlay" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white border-4 border-slate-800 rounded-3xl p-4 md:p-6 max-w-md w-full text-center shadow-2xl flex flex-col items-center gap-3 my-auto">
+      <div class="text-4xl md:text-5xl animate-bounce">🚌🦁🐼</div>
+      <h2 class="text-xl md:text-2xl font-black">Busão dos Bichos!</h2>
+      <div class="text-xs md:text-sm font-semibold text-slate-600 flex flex-col gap-2 text-left bg-sky-50 p-3 md:p-4 rounded-2xl border-2 border-sky-200">
+        <p>🎯 <strong>10 desafios</strong> de adição e subtração com o busão!</p>
+        <p>🔍 Às vezes você vai descobrir <strong>quantos ficaram</strong>, às vezes <strong>quantos havia no início</strong>, às vezes <strong>quantos entraram ou saíram</strong>.</p>
+        <p>👀 Preste atenção em cada pista. Escolha a <strong>resposta certa</strong> entre 3 opções!</p>
+        <p>💡 Acertos de primeira valem mais pontos!</p>
+      </div>
+      <button id="startModalBtn" class="w-full bg-emerald-400 hover:bg-emerald-300 text-slate-900 font-black text-base md:text-lg py-2.5 md:py-3 rounded-xl border-3 border-slate-800 shadow-[0_4px_0_#1e293b] active:translate-y-1 active:shadow-none transition-all">
+        Iniciar Jogo 🚀
+      </button>
+    </div>
+  </div>
+
+  <!-- End Modal -->
+  <div id="endModal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white border-4 border-slate-800 rounded-3xl p-4 md:p-6 max-w-md w-full text-center shadow-2xl flex flex-col items-center gap-3 my-auto">
+      <div class="text-5xl md:text-6xl">🏆</div>
+      <h2 class="text-xl md:text-2xl font-black">Você completou os 10 desafios!</h2>
+      <div class="bg-amber-100 border-2 border-amber-500 rounded-2xl p-3 md:p-4 w-full">
+        <div class="text-xs md:text-sm font-bold text-amber-700">PONTUAÇÃO FINAL</div>
+        <div class="text-3xl md:text-4xl font-black text-amber-900"><span id="finalScore">0</span> ⭐</div>
+      </div>
+      <div id="finalStats" class="text-xs md:text-sm font-semibold text-slate-600"></div>
+      <button id="playAgainBtn" class="w-full bg-emerald-400 hover:bg-emerald-300 text-slate-900 font-black text-base md:text-lg py-2.5 md:py-3 rounded-xl border-3 border-slate-800 shadow-[0_4px_0_#1e293b] active:translate-y-1 active:shadow-none transition-all">
+        Jogar de Novo 🔄
+      </button>
+    </div>
+  </div>
+
+<script>
+(() => {
+  // ============================================================
+  // SOUND MANAGER
+  // ============================================================
+  const SOUNDS_BASE = 'sounds/';
+  const SOUND_FILES = {
+    busArriving:      SOUNDS_BASE + 'bus-arriving.mp3',
+    animalsBoarding:  SOUNDS_BASE + 'animals-boarding.mp3',
+    animalsLeaving:   SOUNDS_BASE + 'animals-leaving.mp3',
+    busAtDestination: SOUNDS_BASE + 'bus-at-destination.mp3',
+    error:            SOUNDS_BASE + 'error.mp3',
+    success:          SOUNDS_BASE + 'success.mp3',
+    levelUp:          SOUNDS_BASE + 'level-up.mp3'
+  };
+
+  const SoundManager = (() => {
+    const cache = {};
+    let enabled = true;
+    function init() {
+      for (const [key, path] of Object.entries(SOUND_FILES)) {
+        const audio = new Audio();
+        audio.preload = 'auto';
+        audio.src = path;
+        audio.addEventListener('error', () => {});
+        cache[key] = audio;
+      }
+    }
+    function play(key, { volume = 0.7 } = {}) {
+      if (!enabled) return;
+      const t = cache[key];
+      if (!t) return;
+      try {
+        const c = t.cloneNode();
+        c.volume = volume;
+        const p = c.play();
+        if (p && p.catch) p.catch(() => {});
+      } catch (e) {}
+    }
+    function setEnabled(v) { enabled = v; }
+    function isEnabled() { return enabled; }
+    return { init, play, setEnabled, isEnabled };
+  })();
+  SoundManager.init();
+
+  // ============================================================
+  // CONSTANTES E HELPERS
+  // ============================================================
+  const TOTAL_QUESTIONS = 10;
+  const MAX_CAPACITY = 10;
+  const ANIMAL_POOL = ["🦁", "🐼", "🦊", "🐸", "🐵", "🐰", "🐯", "🐷", "🐨", "🐮"];
+
+  const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+  const rand = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
+  const getRandomAnimal = () => ANIMAL_POOL[Math.floor(Math.random() * ANIMAL_POOL.length)];
+  const shuffle = (arr) => {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  };
+
+  const QUESTION_PLAN = [
+    { scenario: 1, diff: 'easy',   transform: 'single' },
+    { scenario: 1, diff: 'easy',   transform: 'single' },
+    { scenario: 1, diff: 'easy',   transform: 'single' },
+    { scenario: 3, diff: 'easy',   transform: 'single' },
+    { scenario: 1, diff: 'medium', transform: 'both'   },
+    { scenario: 3, diff: 'medium', transform: 'single' },
+    { scenario: 2, diff: 'medium', transform: 'single' },
+    { scenario: 2, diff: 'medium', transform: 'both'   },
+    { scenario: 'mix', diff: 'hard', transform: 'both' },
+    { scenario: 'mix', diff: 'hard', transform: 'both' }
+  ];
+
+  function getRanges(diff) {
+    if (diff === 'easy')   return { init: [2, 5], trans: [1, 2] };
+    if (diff === 'medium') return { init: [3, 6], trans: [1, 3] };
+    return                        { init: [4, 8], trans: [2, 4] };
+  }
+
+  // ============================================================
+  // ESTADO
+  // ============================================================
+  let questionNumber = 0;
+  let score = 0;
+  let firstTryCorrect = 0;
+  let currentOptions = [];
+  let optionButtons = [];
+  let roundAttempts = 0;
+  let optionsLocked = false;
+  let currentPassengers = [];
+
+  // ============================================================
+  // DOM
+  // ============================================================
+  const gameStage = document.getElementById("gameStage");
+  const busContainer = document.getElementById("busContainer");
+  const doorFrame = document.getElementById("doorFrame");
+  const busRampContainer = document.getElementById("busRampContainer");
+  const walkStage = document.getElementById("walkStage");
+  const wheel1 = document.getElementById("wheel1");
+  const wheel2 = document.getElementById("wheel2");
+  const mysteryBadge = document.getElementById("mysteryBadge");
+
+  const statusMsg = document.getElementById("statusMsg");
+  const statusIcon = document.getElementById("statusIcon");
+  const scoreVal = document.getElementById("scoreVal");
+  const questionVal = document.getElementById("questionVal");
+
+  const optionsArea = document.getElementById("optionsArea");
+  const optionsGrid = document.getElementById("optionsGrid");
+  const questionPrompt = document.getElementById("questionPrompt");
+  const muteBtn = document.getElementById("muteBtn");
+
+  // ============================================================
+  // HUD E UTILITÁRIOS VISUAIS
+  // ============================================================
+  function updateHUD() {
+    scoreVal.textContent = score;
+    questionVal.textContent = `${questionNumber}/${TOTAL_QUESTIONS}`;
+  }
+
+  function setDriving(on) {
+    busContainer.classList.toggle("bus-driving", on);
+    wheel1.classList.toggle("spinning-wheel", on);
+    wheel2.classList.toggle("spinning-wheel", on);
+  }
+
+  function renderSeats(wave = false) {
+    for (let i = 0; i < 10; i++) {
+      const el = document.getElementById(`seat${i}`);
+      el.textContent = currentPassengers[i] || "";
+      el.classList.toggle("waving", wave && !!currentPassengers[i]);
+    }
+  }
+
+  function setWindowsRevealed(v) {
+    document.querySelectorAll(".window-seat").forEach(s => s.classList.toggle("revealed", v));
+  }
+
+  function setDoorOpen(v) {
+    doorFrame.classList.toggle("door-open", v);
+    busRampContainer.classList.toggle("ramp-deployed", v);
+  }
+
+  function getCenterLeft() {
+    return (gameStage.clientWidth - busContainer.offsetWidth) / 2;
+  }
+  function getOffscreenLeft() {
+    return -busContainer.offsetWidth - 50;
+  }
+  function getOffscreenRight() {
+    return gameStage.clientWidth + 50;
+  }
+
+  function moveBus(leftPx, durationMs) {
+    return new Promise(resolve => {
+      setDriving(true);
+      busContainer.style.transition = `left ${durationMs}ms cubic-bezier(0.25, 1, 0.5, 1)`;
+      busContainer.style.left = `${leftPx}px`;
+      setTimeout(() => { setDriving(false); resolve(); }, durationMs);
+    });
+  }
+
+  function createPedestrian(emoji) {
+    const wrap = document.createElement("div");
+    wrap.className = "pedestrian-actor walking-actor";
+    const body = document.createElement("div");
+    body.textContent = emoji;
+    const feet = document.createElement("div");
+    feet.className = "pedestrian-feet";
+    feet.innerHTML = `<div class="foot"></div><div class="foot"></div>`;
+    wrap.appendChild(body);
+    wrap.appendChild(feet);
+    return wrap;
+  }
+
+  function animatePath(actor, x1, y1, x2, y2, duration) {
+    return new Promise(resolve => {
+      const startTime = performance.now();
+      function step(t) {
+        const elapsed = t - startTime;
+        const p = Math.min(elapsed / duration, 1);
+        actor.style.left = `${x1 + (x2 - x1) * p}px`;
+        actor.style.top = `${y1 + (y2 - y1) * p}px`;
+        if (p < 1) requestAnimationFrame(step);
+        else resolve();
+      }
+      requestAnimationFrame(step);
+    });
+  }
+
+  // ============================================================
+  // GERADORES DE QUESTÃO
+  // ============================================================
+  function generateScenario1(diff, transform) {
+    const r = getRanges(diff);
+    let initial = rand(r.init[0], r.init[1]);
+    let leave = 0, board = 0;
+
+    if (transform === 'single') {
+      const dir = Math.random() < 0.5 ? 'leave' : 'board';
+      if (dir === 'leave') {
+        leave = rand(r.trans[0], Math.min(r.trans[1], initial - 1));
+      } else {
+        board = rand(r.trans[0], Math.min(r.trans[1], MAX_CAPACITY - initial));
+      }
+    } else {
+      leave = rand(r.trans[0], Math.min(r.trans[1], initial - 1));
+      const maxBoard = MAX_CAPACITY - (initial - leave);
+      board = rand(r.trans[0], Math.min(r.trans[1], maxBoard));
+    }
+
+    const final = initial - leave + board;
+    return { scenario: 1, initial, leave, board, final, ask: 'final', answer: final };
+  }
+
+  function generateScenario2(diff, transform) {
+    const r = getRanges(diff);
+    let initial, leave, board, final;
+    let safety = 0;
+
+    do {
+      safety++;
+      initial = rand(r.init[0], r.init[1]);
+      leave = 0; board = 0;
+
+      if (transform === 'single') {
+        const dir = Math.random() < 0.5 ? 'leave' : 'board';
+        if (dir === 'leave') {
+          if (initial - 1 >= r.trans[0]) {
+            leave = rand(r.trans[0], Math.min(r.trans[1], initial - 1));
+          } else {
+            board = rand(r.trans[0], Math.min(r.trans[1], MAX_CAPACITY - initial));
+          }
+        } else {
+          if (MAX_CAPACITY - initial >= r.trans[0]) {
+            board = rand(r.trans[0], Math.min(r.trans[1], MAX_CAPACITY - initial));
+          } else {
+            leave = rand(r.trans[0], Math.min(r.trans[1], initial - 1));
+          }
+        }
+      } else {
+        leave = rand(r.trans[0], Math.min(r.trans[1], initial - 1));
+        const maxBoard = MAX_CAPACITY - (initial - leave);
+        board = rand(r.trans[0], Math.min(r.trans[1], maxBoard));
+      }
+
+      final = initial - leave + board;
+    } while ((final < 1 || final > MAX_CAPACITY) && safety < 30);
+
+    return { scenario: 2, initial, leave, board, final, ask: 'initial', answer: initial };
+  }
+
+  function generateScenario3(diff, transform) {
+    const r = getRanges(diff);
+    let initial, leave, board, final, direction;
+    let safety = 0;
+
+    do {
+      safety++;
+      initial = rand(r.init[0], r.init[1]);
+      direction = Math.random() < 0.5 ? 'leave' : 'board';
+      leave = 0; board = 0;
+
+      if (direction === 'leave') {
+        if (initial - 1 < r.trans[0]) { direction = 'board'; }
+        else { leave = rand(r.trans[0], Math.min(r.trans[1], initial - 1)); }
+      }
+      if (direction === 'board') {
+        if (MAX_CAPACITY - initial < r.trans[0]) { direction = 'leave'; }
+        else if (board === 0) { board = rand(r.trans[0], Math.min(r.trans[1], MAX_CAPACITY - initial)); }
+      }
+
+      final = initial - leave + board;
+    } while ((leave === 0 && board === 0) && safety < 30);
+
+    const answer = direction === 'leave' ? leave : board;
+    return { scenario: 3, initial, leave, board, final, ask: direction, answer, askLabel: direction === 'leave' ? 'saíram' : 'entraram' };
+  }
+
+  function generateQuestion() {
+    const plan = QUESTION_PLAN[questionNumber - 1];
+    let scenario = plan.scenario;
+    if (scenario === 'mix') {
+      const pool = [1, 2, 3];
+      scenario = pool[Math.floor(Math.random() * pool.length)];
+    }
+    if (scenario === 1) return generateScenario1(plan.diff, plan.transform);
+    if (scenario === 2) return generateScenario2(plan.diff, plan.transform);
+    return generateScenario3(plan.diff, plan.transform);
+  }
+
+  // ============================================================
+  // GERADOR DE OPÇÕES
+  // ============================================================
+  function generateOptions(q) {
+    const correct = q.answer;
+    const used = new Set([correct]);
+    const candidates = [];
+
+    function addIfValid(v) {
+      if (typeof v !== 'number' || v < 0 || v > MAX_CAPACITY || used.has(v)) return false;
+      used.add(v);
+      candidates.push(v);
+      return true;
+    }
+
+    if (q.scenario === 1) {
+      if (q.leave > 0 && q.board > 0) {
+        addIfValid(q.initial + q.leave + q.board);
+        addIfValid(q.initial - q.leave - q.board);
+      } else if (q.leave > 0) {
+        addIfValid(q.initial + q.leave);
+      } else {
+        addIfValid(q.initial - q.board);
+      }
+      addIfValid(q.initial);
+      addIfValid(correct + 1);
+      addIfValid(correct - 1);
+    } else if (q.scenario === 2) {
+      if (q.leave > 0 && q.board > 0) {
+        addIfValid(q.final + q.board - q.leave);
+        addIfValid(q.final - q.board - q.leave);
+      } else if (q.leave > 0) {
+        addIfValid(q.final - q.leave);
+      } else {
+        addIfValid(q.final + q.board);
+      }
+      addIfValid(q.final);
+      addIfValid(correct + 1);
+      addIfValid(correct - 1);
+    } else {
+      addIfValid(q.initial + q.final);
+      addIfValid(Math.max(q.initial, q.final));
+      addIfValid(correct + 1);
+      addIfValid(correct - 1);
+    }
+
+    const distractors = candidates.slice(0, 2);
+    let offset = 1;
+    while (distractors.length < 2) {
+      if (correct + offset <= MAX_CAPACITY && !used.has(correct + offset)) {
+        used.add(correct + offset);
+        distractors.push(correct + offset);
+      } else if (correct - offset >= 0 && !used.has(correct - offset)) {
+        used.add(correct - offset);
+        distractors.push(correct - offset);
+      }
+      offset++;
+      if (offset > MAX_CAPACITY) break;
+    }
+
+    const arr = [
+      { val: correct, isCorrect: true, hint: getHint(q) },
+      { val: distractors[0], isCorrect: false, hint: getHint(q) },
+      { val: distractors[1], isCorrect: false, hint: getHint(q) }
+    ];
+    return shuffle(arr);
+  }
+
+  function getHint(q) {
+    if (q.scenario === 1) {
+      if (q.leave > 0 && q.board > 0)
+        return `Havia ${q.initial}. Saíram ${q.leave} (subtrai). Entraram ${q.board} (soma). Faça: ${q.initial} − ${q.leave} + ${q.board} = ${q.final}.`;
+      if (q.leave > 0)
+        return `Havia ${q.initial} e saíram ${q.leave}. Quem sai, subtrai: ${q.initial} − ${q.leave} = ${q.final}.`;
+      return `Havia ${q.initial} e entraram ${q.board}. Quem entra, soma: ${q.initial} + ${q.board} = ${q.final}.`;
+    }
+    if (q.scenario === 2) {
+      if (q.leave > 0 && q.board > 0)
+        return `Agora há ${q.final}. Para descobrir o início, desfaça: ${q.final} − ${q.board} + ${q.leave} = ${q.initial}.`;
+      if (q.leave > 0)
+        return `Agora há ${q.final} e ${q.leave} saíram. Para descobrir o início, some de volta: ${q.final} + ${q.leave} = ${q.initial}.`;
+      return `Agora há ${q.final} e ${q.board} entraram. Para descobrir o início, subtraia: ${q.final} − ${q.board} = ${q.initial}.`;
+    }
+    const diff = Math.abs(q.final - q.initial);
+    if (q.ask === 'leave')
+      return `Havia ${q.initial} e agora há ${q.final}. Quem saiu é a diferença: ${q.initial} − ${q.final} = ${diff}.`;
+    return `Havia ${q.initial} e agora há ${q.final}. Quem entrou é a diferença: ${q.final} − ${q.initial} = ${diff}.`;
+  }
+
+  function getPrompt(q) {
+    if (q.scenario === 1) return "Quantos animais ficaram no busão?";
+    if (q.scenario === 2) return "Quantos animais havia no início?";
+    return q.ask === 'leave' ? "Quantos animais saíram?" : "Quantos animais entraram?";
+  }
+
+  // ============================================================
+  // FLUXO DA QUESTÃO
+  // ============================================================
+  async function runQuestion(q) {
+    walkStage.innerHTML = "";
+    setDoorOpen(false);
+    setWindowsRevealed(false);
+    mysteryBadge.classList.add("hidden");
+    optionsArea.classList.add("hidden");
+    optionsGrid.innerHTML = "";
+
+    currentPassengers = Array(q.initial).fill(null).map(() => getRandomAnimal());
+    renderSeats();
+
+    busContainer.style.transition = "none";
+    busContainer.style.left = `${getOffscreenLeft()}px`;
+
+    if (q.scenario === 2) {
+      statusIcon.textContent = "🚌";
+      statusMsg.textContent = "O busão chegou... mas não sabemos quantos estão dentro!";
+      SoundManager.play('busArriving');
+
+      await moveBus(15, 1200);
+      await sleep(800);
+
+      statusIcon.textContent = "🏣";
+      statusMsg.textContent = "Indo para o Ponto Central...";
+      await moveBus(getCenterLeft(), 1400);
+      SoundManager.play('busAtDestination');
+
+      setDoorOpen(true);
+      await sleep(600);
+
+      await performTransformations(q);
+
+      setDoorOpen(false);
+      await sleep(500);
+
+      setWindowsRevealed(true);
+      renderSeats();
+      statusIcon.textContent = "👀";
+      statusMsg.textContent = `Agora há ${q.final} animais no busão!`;
+      await sleep(2200);
+
+      showOptions(q);
+
+    } else {
+      statusIcon.textContent = "🚌";
+      statusMsg.textContent = "O busão está chegando!";
+      SoundManager.play('busArriving');
+
+      await moveBus(15, 1200);
+
+      statusIcon.textContent = "👀";
+      statusMsg.textContent = "Memorize quem está a bordo!";
+      setWindowsRevealed(true);
+      renderSeats(true);
+      await sleep(5000);
+
+      renderSeats(false);
+      setWindowsRevealed(false);
+      statusIcon.textContent = "🏣";
+      statusMsg.textContent = `Havia ${q.initial} animais no início. Indo...`;
+      await moveBus(getCenterLeft(), 1400);
+      SoundManager.play('busAtDestination');
+
+      setDoorOpen(true);
+      await sleep(600);
+
+      if (q.scenario === 1) {
+        await performTransformations(q);
+      } else {
+        await performMysteryTransformation(q);
+      }
+
+      setDoorOpen(false);
+      await sleep(500);
+
+      if (q.scenario === 3) {
+        setWindowsRevealed(true);
+        renderSeats();
+        statusIcon.textContent = "👀";
+        statusMsg.textContent = `Agora há ${q.final} animais no busão!`;
+        await sleep(2200);
+      }
+
+      showOptions(q);
+    }
+  }
+
+  async function performTransformations(q) {
+    const busRect = busContainer.getBoundingClientRect();
+    const stageRect = gameStage.getBoundingClientRect();
+    
+    const doorX = (busRect.left - stageRect.left) + (busRect.width * 0.82);
+    const busFloorY = (busRect.top - stageRect.top) + (busRect.height * 0.35);
+    const sidewalkY = (busRect.top - stageRect.top) + (busRect.height * 0.75);
+
+    if (q.leave > 0) {
+      statusIcon.textContent = "🚶";
+      statusMsg.textContent = `${q.leave} bicho(s) desembarcando!`;
+      SoundManager.play('animalsLeaving');
+
+      for (let i = 0; i < q.leave; i++) {
+        await sleep(1100);
+        const emoji = currentPassengers.pop() || getRandomAnimal();
+        renderSeats();
+        const actor = createPedestrian(emoji);
+        actor.style.left = `${doorX}px`;
+        actor.style.top = `${busFloorY}px`;
+        walkStage.appendChild(actor);
+        await animatePath(actor, doorX, busFloorY, doorX, sidewalkY, 600);
+        await animatePath(actor, doorX, sidewalkY, stageRect.width + 60, sidewalkY, 1800);
+        actor.remove();
+      }
+      await sleep(300);
+    }
+
+    if (q.board > 0) {
+      statusIcon.textContent = "🚶";
+      statusMsg.textContent = `${q.board} bicho(s) embarcando!`;
+      SoundManager.play('animalsBoarding');
+
+      for (let i = 0; i < q.board; i++) {
+        await sleep(900);
+        const emoji = getRandomAnimal();
+        const actor = createPedestrian(emoji);
+        actor.style.left = `-50px`;
+        actor.style.top = `${sidewalkY}px`;
+        walkStage.appendChild(actor);
+        await animatePath(actor, -50, sidewalkY, doorX, sidewalkY, 1600);
+        await animatePath(actor, doorX, sidewalkY, doorX, busFloorY, 600);
+        actor.remove();
+        currentPassengers.push(emoji);
+        renderSeats();
+      }
+    }
+  }
+
+  async function performMysteryTransformation(q) {
+    const busRect = busContainer.getBoundingClientRect();
+    const stageRect = gameStage.getBoundingClientRect();
+    const doorX = (busRect.left - stageRect.left) + (busRect.width * 0.82);
+    const doorY = (busRect.top - stageRect.top) + (busRect.height * 0.5);
+
+    const direction = q.ask === 'leave' ? 'out' : 'in';
+
+    statusIcon.textContent = "❓";
+    statusMsg.textContent = "Animais misteriosos passando! Não dá para contar...";
+    mysteryBadge.classList.remove("hidden");
+
+    for (let i = 0; i < 6; i++) {
+      const el = document.createElement("div");
+      el.className = "mystery-q";
+      el.textContent = "?";
+      el.style.left = `${doorX}px`;
+      el.style.top = `${doorY}px`;
+      walkStage.appendChild(el);
+
+      setTimeout(() => {
+        el.style.opacity = '1';
+        const dx = direction === 'out' ? (Math.random() * 80 + 20) : -(Math.random() * 80 + 20);
+        const dy = direction === 'out' ? (Math.random() * 30 + 10) : -(Math.random() * 30 + 10);
+        el.style.transform = `translate(${dx}px, ${dy}px)`;
+      }, i * 130);
+
+      setTimeout(() => {
+        el.style.opacity = '0';
+        setTimeout(() => el.remove(), 400);
+      }, 900 + i * 130);
+    }
+
+    if (q.leave > 0) {
+      for (let i = 0; i < q.leave; i++) currentPassengers.pop();
+    }
+    if (q.board > 0) {
+      for (let i = 0; i < q.board; i++) currentPassengers.push(getRandomAnimal());
+    }
+
+    await sleep(2400);
+    mysteryBadge.classList.add("hidden");
+  }
+
+  // ============================================================
+  // MOSTRAR OPÇÕES
+  // ============================================================
+  function showOptions(q) {
+    currentOptions = generateOptions(q);
+    optionsGrid.innerHTML = "";
+    optionButtons = [];
+    roundAttempts = 0;
+    optionsLocked = false;
+
+    currentOptions.forEach((opt, idx) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "option-btn";
+      btn.textContent = opt.val;
+      btn.dataset.idx = idx;
+      btn.addEventListener("click", () => handleOptionClick(idx, q));
+      optionsGrid.appendChild(btn);
+      optionButtons.push(btn);
+    });
+
+    questionPrompt.innerHTML = `<span class="inline-block bg-indigo-600 text-white font-black text-xs md:text-lg px-4 md:px-6 py-1.5 md:py-2.5 rounded-lg md:rounded-xl border-2 md:border-3 border-slate-800 shadow-[0_2px_0_#1e293b]">${getPrompt(q)}</span>`;
+    
+    statusIcon.textContent = "🎯";
+    statusMsg.textContent = "Hora de responder! Escolha abaixo.";
+    
+    optionsArea.classList.remove("hidden");
+    optionsArea.classList.remove("options-appear");
+    void optionsArea.offsetWidth;
+    optionsArea.classList.add("options-appear");
+  }
+
+  // ============================================================
+  // CLIQUE EM OPÇÃO
+  // ============================================================
+  function handleOptionClick(idx, q) {
+    if (optionsLocked) return;
+    const opt = currentOptions[idx];
+    const btn = optionButtons[idx];
+    if (!opt || !btn || btn.disabled) return;
+
+    if (opt.isCorrect) {
+      optionsLocked = true;
+      btn.classList.add("correct");
+      SoundManager.play('success');
+
+      if (roundAttempts === 0) firstTryCorrect++;
+      const points = roundAttempts === 0 ? 10 * questionNumber
+                   : roundAttempts === 1 ? 5 * questionNumber
+                   : 2 * questionNumber;
+      score += points;
+      updateHUD();
+
+      statusIcon.textContent = "🎉";
+      statusMsg.textContent = `Isso! ${opt.hint}`;
+
+      setWindowsRevealed(true);
+      renderSeats(true);
+
+      setTimeout(() => {
+        statusIcon.textContent = "🚀";
+        statusMsg.textContent = "Próxima parada!";
+        moveBus(getOffscreenRight(), 1400).then(() => advanceQuestion());
+      }, 2400);
+
+    } else {
+      roundAttempts++;
+      btn.classList.add("wrong");
+      btn.disabled = true;
+      SoundManager.play('error');
+
+      statusIcon.textContent = "❌";
+      statusMsg.textContent = opt.hint || "Essa não é a resposta certa.";
+
+      if (roundAttempts >= 2) {
+        const correctIdx = currentOptions.findIndex(o => o.isCorrect);
+        const correctBtn = optionButtons[correctIdx];
+        if (correctBtn) {
+          correctBtn.classList.add("correct");
+          optionsLocked = true;
+          setTimeout(() => {
+            const points = 2 * questionNumber;
+            score += points;
+            updateHUD();
+            statusIcon.textContent = "💡";
+            statusMsg.textContent = `A resposta era ${currentOptions[correctIdx].val}. ${currentOptions[correctIdx].hint}`;
+            setWindowsRevealed(true);
+            renderSeats(true);
+            setTimeout(() => {
+              moveBus(getOffscreenRight(), 1400).then(() => advanceQuestion());
+            }, 3200);
+          }, 900);
+        }
+      }
+    }
+  }
+
+  // ============================================================
+  // AVANÇO DE QUESTÃO E FIM
+  // ============================================================
+  function advanceQuestion() {
+    questionNumber++;
+    updateHUD();
+
+    if (questionNumber > TOTAL_QUESTIONS) {
+      showEndScreen();
+      return;
+    }
+
+    const nextQ = generateQuestion();
+    statusMsg.textContent = "Preparando...";
+    statusIcon.textContent = "🚌";
+    setTimeout(() => runQuestion(nextQ), 500);
+  }
+
+  function showEndScreen() {
+    document.getElementById("finalScore").textContent = score;
+    document.getElementById("finalStats").textContent = `${firstTryCorrect} de ${TOTAL_QUESTIONS} acertos na primeira tentativa.`;
+    document.getElementById("endModal").classList.remove("hidden");
+    SoundManager.play('levelUp');
+  }
+
+  // ============================================================
+  // INICIAR / REINICIAR
+  // ============================================================
+  function startGame() {
+    questionNumber = 0;
+    score = 0;
+    firstTryCorrect = 0;
+    updateHUD();
+    advanceQuestion();
+  }
+
+  document.getElementById("startModalBtn").addEventListener("click", () => {
+    document.getElementById("modalOverlay").classList.add("hidden");
+    startGame();
+  });
+
+  document.getElementById("playAgainBtn").addEventListener("click", () => {
+    document.getElementById("endModal").classList.add("hidden");
+    busContainer.style.transition = "none";
+    busContainer.style.left = `${getOffscreenLeft()}px`;
+    startGame();
+  });
+
+  muteBtn.addEventListener("click", () => {
+    const next = !SoundManager.isEnabled();
+    SoundManager.setEnabled(next);
+    muteBtn.textContent = next ? "🔊" : "🔇";
+  });
+
+})();
+</script>
+</body>
+</html>
