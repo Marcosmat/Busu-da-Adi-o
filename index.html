@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Busão dos Bichos</title>
+<title>Busão dos Bichos - Terceiro Excluído</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
@@ -41,7 +41,6 @@
   }
   .waving { animation: waveHand 0.6s infinite ease-in-out; }
 
-  /* Janelas pretas */
   .window-seat { background: #000000; transition: background-color 0.4s ease, box-shadow 0.4s ease; }
   .window-seat.revealed { 
     background: #000000; 
@@ -69,16 +68,15 @@
   .pedestrian-feet { display: flex; gap: 8px; margin-top: -6px; }
   .foot { width: 6px; height: 4px; background: #334155; border-radius: 999px; }
 
-  /* Símbolo ? ENORME e de alto contraste */
   .mystery-q {
     position: absolute; 
     font-size: clamp(3rem, 12vw, 5rem); 
     font-weight: 900;
-    color: #fef08a; /* Amarelo claro brilhante */
-    -webkit-text-stroke: 3px black; /* Borda preta para navegadores Webkit */
+    color: #fef08a; 
+    -webkit-text-stroke: 3px black; 
     text-shadow: 
       3px 3px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000,
-      4px 4px 0 rgba(0,0,0,0.5); /* Sombra extra */
+      4px 4px 0 rgba(0,0,0,0.5);
     z-index: 50; pointer-events: none;
     opacity: 0; transition: all 1s ease-out;
   }
@@ -107,18 +105,17 @@
 </head>
 <body class="bg-gradient-to-b from-sky-400 via-sky-200 to-emerald-500 items-center justify-between p-1 md:p-4 text-slate-800">
 
-  <!-- Header Centralizado com Botão de Replay -->
+  <!-- Header -->
   <header class="w-full max-w-4xl bg-white/95 backdrop-blur border-4 border-slate-800 rounded-2xl p-2 md:p-3 shadow-lg flex flex-col md:flex-row items-center justify-between gap-2 md:gap-4 z-10 shrink-0">
     <div class="flex items-center gap-2 md:gap-3">
       <span class="text-3xl md:text-4xl">🚌</span>
       <div class="text-center md:text-left">
         <h1 class="text-xl md:text-3xl font-bold leading-none">Busão dos Bichos</h1>
-        <p class="text-xs md:text-sm font-semibold text-slate-500 mt-1">CAMPO ADITIVO</p>
+        <p class="text-xs md:text-sm font-semibold text-slate-500 mt-1">Terceiro Excluído</p>
       </div>
     </div>
     
     <div class="flex items-center justify-center gap-2 md:gap-4 font-bold text-sm md:text-lg">
-      <!-- Botão de Replay -->
       <button id="replayBtn" disabled title="Repetir questão atual" class="bg-slate-200 hover:bg-slate-300 disabled:opacity-50 disabled:cursor-not-allowed border-2 border-slate-800 rounded-xl px-3 py-1.5 md:px-4 md:py-2 shadow-[0_3px_0_#1e293b] active:translate-y-1 active:shadow-none transition-all">🔄</button>
       <button id="muteBtn" title="Som" class="bg-slate-100 hover:bg-slate-200 border-2 border-slate-800 rounded-xl px-3 py-1.5 md:px-4 md:py-2 shadow-[0_3px_0_#1e293b] active:translate-y-1 active:shadow-none transition-all">🔊</button>
       <div class="bg-amber-100 border-2 border-slate-800 rounded-xl px-3 py-1.5 md:px-4 md:py-2 flex items-center gap-1.5 shadow-[0_3px_0_#1e293b]">
@@ -136,6 +133,16 @@
     <div class="absolute top-2 left-4 text-2xl md:text-4xl opacity-80">☁️</div>
     <div class="absolute top-4 right-8 text-3xl md:text-5xl opacity-70">☁️</div>
 
+    <!-- Botão Ver Conta (Céu) -->
+    <div id="eqToggleContainer" class="absolute top-3 left-1/2 -translate-x-1/2 z-40 hidden flex-col items-center gap-2">
+      <button id="showEqBtn" class="bg-indigo-600 hover:bg-indigo-500 text-white font-black text-xs md:text-base px-4 py-1.5 md:px-6 md:py-2 rounded-xl border-3 border-slate-800 shadow-[0_3px_0_#1e293b] active:translate-y-1 active:shadow-none transition-all">
+        👁️ Ver Conta (-5 pts)
+      </button>
+      <div id="eqPanel" class="hidden bg-white text-slate-900 font-black text-xl md:text-3xl px-6 py-2 md:px-8 md:py-3 rounded-2xl border-4 border-slate-800 shadow-xl whitespace-nowrap">
+        ?
+      </div>
+    </div>
+
     <!-- Ponto de Ônibus -->
     <div class="absolute left-1/2 -translate-x-1/2 bottom-[30%] flex flex-col items-center z-10">
       <div class="bg-rose-500 border-2 border-white text-white font-extrabold text-[10px] md:text-xs px-2.5 py-1 rounded-full shadow-md uppercase tracking-wider flex items-center gap-1">
@@ -145,17 +152,15 @@
       <div class="w-24 md:w-36 h-2 md:h-3 bg-stone-300 border border-slate-600 rounded-full shadow-md"></div>
     </div>
 
-    <!-- Ônibus Verde Escuro -->
+    <!-- Ônibus -->
     <div id="busContainer" class="absolute bottom-[12%] w-[92%] max-w-[580px] h-[130px] md:h-[160px] z-30 transition-all duration-300">
       <div class="absolute -top-8 md:-top-10 left-1/2 -translate-x-1/2 hidden" id="mysteryBadge">
         <div class="bg-purple-600 text-white font-black px-4 md:px-5 py-1 rounded-xl border-3 border-slate-800 shadow-lg text-xl md:text-2xl pulse-q">❓</div>
       </div>
 
-      <!-- Corpo do Ônibus: emerald-800 (Verde Muito Escuro) -->
       <div id="busBody" class="relative w-full h-full bg-emerald-800 border-4 border-slate-900 rounded-t-3xl rounded-b-xl shadow-[inset_0_-10px_0_#064e3b] p-2 md:p-3 flex gap-1.5 md:gap-2 items-center">
         <div class="absolute right-0 bottom-4 md:bottom-5 w-2 md:w-3 h-6 md:h-8 bg-yellow-200 border-2 border-slate-900 rounded-r-md shadow-[0_0_8px_#fef08a]"></div>
 
-        <!-- Porta -->
         <div id="doorFrame" class="absolute right-[12%] bottom-0 w-[9%] h-[85%] bg-slate-900 border-t-2 border-x-2 border-slate-950 rounded-t-lg z-40 overflow-hidden flex shadow-inner">
           <div class="bus-door-panel-left w-1/2 h-full bg-emerald-100 border-r border-slate-900 p-0.5 flex flex-col justify-between">
             <div class="w-full h-1/2 bg-emerald-50 border border-slate-400 rounded-sm"></div>
@@ -167,12 +172,10 @@
           </div>
         </div>
 
-        <!-- Rampa -->
         <div id="busRampContainer" class="bus-ramp absolute right-[10%] -bottom-[10px] w-[12%] h-3 md:h-4 bg-stone-400 border-2 border-slate-900 rounded-b-md z-30 shadow-md">
           <div class="w-full h-full bg-yellow-400 border-t border-slate-600"></div>
         </div>
 
-        <!-- Janelas (Pretas e Animais) -->
         <div class="w-full h-[60%] md:h-[85px] grid grid-cols-10 gap-1 md:gap-1.5 pr-[24%] pl-1 md:pl-2">
           <div class="window-seat rounded-md md:rounded-lg border-2 border-slate-950 flex items-center justify-center relative overflow-hidden"><span class="text-[7px] md:text-[9px] font-extrabold text-white/20 absolute top-0.5 left-1 hidden md:block">1</span><span id="seat0" class="animal-in-seat text-lg md:text-3xl"></span></div>
           <div class="window-seat rounded-md md:rounded-lg border-2 border-slate-950 flex items-center justify-center relative overflow-hidden"><span class="text-[7px] md:text-[9px] font-extrabold text-white/20 absolute top-0.5 left-1 hidden md:block">2</span><span id="seat1" class="animal-in-seat text-lg md:text-3xl"></span></div>
@@ -186,7 +189,6 @@
           <div class="window-seat rounded-md md:rounded-lg border-2 border-slate-950 flex items-center justify-center relative overflow-hidden"><span class="text-[7px] md:text-[9px] font-extrabold text-white/20 absolute top-0.5 left-1 hidden md:block">10</span><span id="seat9" class="animal-in-seat text-lg md:text-3xl"></span></div>
         </div>
 
-        <!-- Rodas -->
         <div class="absolute -bottom-4 md:-bottom-5 left-[10%] w-10 h-10 md:w-12 md:h-12 bg-slate-900 border-4 border-slate-800 rounded-full flex items-center justify-center shadow-lg z-50">
           <div id="wheel1" class="w-3 h-3 md:w-4 md:h-4 bg-slate-300 rounded-full border border-slate-800"></div>
         </div>
@@ -198,7 +200,6 @@
 
     <div id="walkStage" class="absolute inset-0 pointer-events-none z-50"></div>
 
-    <!-- Calçada -->
     <div class="absolute bottom-0 left-0 right-0 h-[28px] md:h-[38px] bg-slate-700 border-t-4 border-slate-800 flex items-center justify-around">
       <div class="absolute -top-[8px] md:-top-[10px] left-0 right-0 h-[8px] md:h-[10px] bg-stone-300 border-t-2 border-slate-600"></div>
       <div class="w-8 md:w-12 h-1 md:h-1.5 bg-amber-400 rounded-full"></div>
@@ -211,11 +212,19 @@
 
   <!-- Footer -->
   <footer class="w-full max-w-4xl bg-white/95 backdrop-blur border-4 border-slate-800 rounded-2xl p-2 md:p-3 shadow-xl flex flex-col gap-2 z-10 shrink-0">
-    <div class="bg-sky-50 border-2 border-sky-300 rounded-lg md:rounded-xl p-1.5 md:p-2.5 text-center flex items-center justify-center gap-2 min-h-[40px] md:min-h-[48px]">
-      <span id="statusIcon" class="text-xl md:text-2xl animate-bounce">📢</span>
-      <p id="statusMsg" class="font-bold text-xs md:text-base text-slate-800 leading-tight">
+    <!-- Status com Fonte Maior -->
+    <div class="bg-sky-50 border-2 border-sky-300 rounded-lg md:rounded-xl p-2 md:p-3 text-center flex items-center justify-center gap-2 min-h-[48px] md:min-h-[56px]">
+      <span id="statusIcon" class="text-2xl md:text-3xl animate-bounce">📢</span>
+      <p id="statusMsg" class="font-bold text-sm md:text-xl text-slate-800 leading-tight">
         Clique em "Iniciar Jogo" para começar!
       </p>
+    </div>
+
+    <!-- Botão Próxima Parada (Oculto por padrão) -->
+    <div id="nextStopArea" class="hidden">
+      <button id="nextStopBtn" class="w-full bg-amber-400 hover:bg-amber-300 text-slate-900 font-black text-lg md:text-2xl py-3 md:py-4 rounded-xl border-3 border-slate-800 shadow-[0_4px_0_#1e293b] active:translate-y-1 active:shadow-none transition-all uppercase tracking-wider">
+        Próxima Parada 🚀
+      </button>
     </div>
 
     <div id="optionsArea" class="hidden flex flex-col gap-2 md:gap-3">
@@ -224,7 +233,7 @@
     </div>
   </footer>
 
-  <!-- Welcome Modal -->
+  <!-- Modals (Welcome e End) -->
   <div id="modalOverlay" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
     <div class="bg-white border-4 border-slate-800 rounded-3xl p-5 md:p-8 max-w-md w-full text-center shadow-2xl flex flex-col items-center gap-4 my-auto">
       <div class="text-5xl md:text-6xl animate-bounce">🚌🦁🐼</div>
@@ -241,7 +250,6 @@
     </div>
   </div>
 
-  <!-- End Modal -->
   <div id="endModal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
     <div class="bg-white border-4 border-slate-800 rounded-3xl p-5 md:p-8 max-w-md w-full text-center shadow-2xl flex flex-col items-center gap-4 my-auto">
       <div class="text-6xl md:text-7xl">🏆</div>
@@ -342,16 +350,20 @@
   // ============================================================
   // ESTADO
   // ============================================================
-  let gameToken = 0; // Usado para abortar animações antigas se o jogador reiniciar
+  let gameToken = 0;
   let questionNumber = 0;
   let score = 0;
   let firstTryCorrect = 0;
-  let currentQuestion = null; // Salva a questão para o botão de replay
+  let currentQuestion = null;
   let currentOptions = [];
   let optionButtons = [];
   let roundAttempts = 0;
   let optionsLocked = false;
   let currentPassengers = [];
+  
+  // Estado da Conta e Próxima Parada
+  let equationRevealed = false;
+  let isNextStopPending = false;
 
   // ============================================================
   // DOM
@@ -376,6 +388,13 @@
   const optionsArea = document.getElementById("optionsArea");
   const optionsGrid = document.getElementById("optionsGrid");
   const questionPrompt = document.getElementById("questionPrompt");
+
+  const nextStopArea = document.getElementById("nextStopArea");
+  const nextStopBtn = document.getElementById("nextStopBtn");
+
+  const eqToggleContainer = document.getElementById("eqToggleContainer");
+  const showEqBtn = document.getElementById("showEqBtn");
+  const eqPanel = document.getElementById("eqPanel");
 
   // ============================================================
   // HUD E UTILITÁRIOS VISUAIS
@@ -454,6 +473,50 @@
       requestAnimationFrame(step);
     });
   }
+
+  // ============================================================
+  // EQUAÇÃO E REVELAÇÃO
+  // ============================================================
+  function getEquationString(q) {
+    let str = "";
+    if (q.scenario === 1) {
+      str = `${q.initial}`;
+      if (q.leave > 0) str += ` − ${q.leave}`;
+      if (q.board > 0) str += ` + ${q.board}`;
+      str += ` = ?`;
+    } else if (q.scenario === 2) {
+      str = `? `;
+      if (q.leave > 0) str += `− ${q.leave} `;
+      if (q.board > 0) str += `+ ${q.board} `;
+      str += `= ${q.final}`;
+    } else if (q.scenario === 3) {
+      if (q.ask === 'leave') {
+        str = `${q.initial} − ? = ${q.final}`;
+      } else {
+        str = `${q.initial} + ? = ${q.final}`;
+      }
+    }
+    return str;
+  }
+
+  function resetEquationPanel() {
+    equationRevealed = false;
+    eqPanel.classList.add("hidden");
+    showEqBtn.textContent = "👁️ Ver Conta (-5 pts)";
+    showEqBtn.disabled = false;
+    showEqBtn.classList.remove("opacity-50", "cursor-not-allowed");
+    eqToggleContainer.classList.add("hidden");
+  }
+
+  showEqBtn.addEventListener("click", () => {
+    if (equationRevealed || !currentQuestion) return;
+    equationRevealed = true;
+    eqPanel.textContent = getEquationString(currentQuestion);
+    eqPanel.classList.remove("hidden");
+    showEqBtn.textContent = "Conta Visível (-5 pts)";
+    showEqBtn.disabled = true;
+    showEqBtn.classList.add("opacity-50", "cursor-not-allowed");
+  });
 
   // ============================================================
   // GERADORES DE QUESTÃO
@@ -655,10 +718,7 @@
   // FLUXO DA QUESTÃO
   // ============================================================
   async function runQuestion(q) {
-    // Cria uma nova "sessão" para cancelar animações anteriores
     const myToken = ++gameToken; 
-    
-    // Habilita botão de replay
     replayBtn.disabled = false;
 
     walkStage.innerHTML = "";
@@ -666,7 +726,9 @@
     setWindowsRevealed(false);
     mysteryBadge.classList.add("hidden");
     optionsArea.classList.add("hidden");
-    optionsGrid.innerHTML = "";
+    nextStopArea.classList.add("hidden");
+    eqToggleContainer.classList.add("hidden");
+    resetEquationPanel();
 
     currentPassengers = Array(q.initial).fill(null).map(() => getRandomAnimal());
     renderSeats();
@@ -776,10 +838,7 @@
       for (let i = 0; i < q.leave; i++) {
         await sleep(1100);
         if (myToken !== gameToken) return;
-
-        // Som TOCA INDIVIDUALMENTE para cada animal que sai
         SoundManager.play('animalsLeaving');
-
         const emoji = currentPassengers.pop() || getRandomAnimal();
         renderSeats();
         const actor = createPedestrian(emoji);
@@ -789,7 +848,6 @@
         
         await animatePath(actor, doorX, busFloorY, doorX, sidewalkY, 600);
         if (myToken !== gameToken) { actor.remove(); return; }
-        
         await animatePath(actor, doorX, sidewalkY, stageRect.width + 60, sidewalkY, 1800);
         actor.remove();
       }
@@ -804,10 +862,7 @@
       for (let i = 0; i < q.board; i++) {
         await sleep(900);
         if (myToken !== gameToken) return;
-
-        // Som TOCA INDIVIDUALMENTE para cada animal que entra
         SoundManager.play('animalsBoarding');
-
         const emoji = getRandomAnimal();
         const actor = createPedestrian(emoji);
         actor.style.left = `-50px`;
@@ -816,12 +871,10 @@
         
         await animatePath(actor, -50, sidewalkY, doorX, sidewalkY, 1600);
         if (myToken !== gameToken) { actor.remove(); return; }
-        
         await animatePath(actor, doorX, sidewalkY, doorX, busFloorY, 600);
         actor.remove();
         
         if (myToken !== gameToken) return;
-        
         currentPassengers.push(emoji);
         renderSeats();
       }
@@ -840,13 +893,11 @@
     statusMsg.textContent = "Animais misteriosos passando! Não dá para contar...";
     mysteryBadge.classList.remove("hidden");
 
-    // Gera 12 "?" enormes
     for (let i = 0; i < 12; i++) {
       const el = document.createElement("div");
       el.className = "mystery-q";
       el.textContent = "?";
       
-      // Posiciona um pouco aleatório perto da porta
       const randX = doorX + (Math.random() * 40 - 20);
       const randY = doorY + (Math.random() * 40 - 20);
       
@@ -881,10 +932,10 @@
   }
 
   // ============================================================
-  // MOSTRAR OPÇÕES
+  // MOSTRAR OPÇÕES E BOTÃO PRÓXIMA PARADA
   // ============================================================
   function showOptions(q) {
-    currentQuestion = q; // Salva para o replay
+    currentQuestion = q; 
     currentOptions = generateOptions(q);
     optionsGrid.innerHTML = "";
     optionButtons = [];
@@ -907,11 +958,33 @@
     statusIcon.textContent = "🎯";
     statusMsg.textContent = "Hora de responder! Escolha abaixo.";
     
+    eqToggleContainer.classList.remove("hidden");
     optionsArea.classList.remove("hidden");
     optionsArea.classList.remove("options-appear");
     void optionsArea.offsetWidth;
     optionsArea.classList.add("options-appear");
   }
+
+  function showNextStopButton() {
+    isNextStopPending = true;
+    optionsArea.classList.add("hidden");
+    nextStopArea.classList.remove("hidden");
+    eqToggleContainer.classList.add("hidden");
+    // Desabilita Replay após responder
+    replayBtn.disabled = true; 
+  }
+
+  nextStopBtn.addEventListener("click", () => {
+    if (!isNextStopPending) return;
+    isNextStopPending = false;
+    nextStopArea.classList.add("hidden");
+    
+    statusIcon.textContent = "🚀";
+    statusMsg.textContent = "Próxima parada!";
+    moveBus(getOffscreenRight(), 1400).then(() => {
+      advanceQuestion();
+    });
+  });
 
   // ============================================================
   // CLIQUE EM OPÇÃO
@@ -924,14 +997,20 @@
 
     if (opt.isCorrect) {
       optionsLocked = true;
-      replayBtn.disabled = true; // Desabilita replay durante a transição
       btn.classList.add("correct");
       SoundManager.play('success');
 
       if (roundAttempts === 0) firstTryCorrect++;
-      const points = roundAttempts === 0 ? 10 * questionNumber
-                   : roundAttempts === 1 ? 5 * questionNumber
-                   : 2 * questionNumber;
+      
+      let points = roundAttempts === 0 ? 10 * questionNumber
+                 : roundAttempts === 1 ? 5 * questionNumber
+                 : 2 * questionNumber;
+                 
+      // Penalidade de -5 se a conta estiver à mostra
+      if (equationRevealed) {
+        points = Math.max(0, points - 5);
+      }
+
       score += points;
       updateHUD();
 
@@ -940,12 +1019,11 @@
 
       setWindowsRevealed(true);
       renderSeats(true);
-
+      
+      // Mostra o botão "Próxima Parada" após um tempo para ler o feedback
       setTimeout(() => {
-        statusIcon.textContent = "🚀";
-        statusMsg.textContent = "Próxima parada!";
-        moveBus(getOffscreenRight(), 1400).then(() => advanceQuestion());
-      }, 2400);
+        showNextStopButton();
+      }, 2000);
 
     } else {
       roundAttempts++;
@@ -962,17 +1040,21 @@
         if (correctBtn) {
           correctBtn.classList.add("correct");
           optionsLocked = true;
-          replayBtn.disabled = true;
+          
           setTimeout(() => {
-            const points = 2 * questionNumber;
+            let points = 2 * questionNumber;
+            if (equationRevealed) points = Math.max(0, points - 5);
+            
             score += points;
             updateHUD();
+            
             statusIcon.textContent = "💡";
             statusMsg.textContent = `A resposta era ${currentOptions[correctIdx].val}. ${currentOptions[correctIdx].hint}`;
             setWindowsRevealed(true);
             renderSeats(true);
+            
             setTimeout(() => {
-              moveBus(getOffscreenRight(), 1400).then(() => advanceQuestion());
+              showNextStopButton();
             }, 3200);
           }, 900);
         }
@@ -1010,7 +1092,7 @@
   // INICIAR / REINICIAR / REPLAY
   // ============================================================
   function startGame() {
-    gameToken++; // Aborta qualquer animação em andamento
+    gameToken++; 
     questionNumber = 0;
     score = 0;
     firstTryCorrect = 0;
@@ -1030,9 +1112,8 @@
     startGame();
   });
 
-  // Lógica do Botão de Replay (Recomeça a questão atual com os mesmos números)
   replayBtn.addEventListener("click", () => {
-    if (!currentQuestion) return;
+    if (!currentQuestion || isNextStopPending) return;
     runQuestion(currentQuestion);
   });
 
