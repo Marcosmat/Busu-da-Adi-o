@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Busão dos Bichos - Terceiro Excluído</title>
+<title>Busão dos Bichos</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
@@ -111,7 +111,7 @@
       <span class="text-3xl md:text-4xl">🚌</span>
       <div class="text-center md:text-left">
         <h1 class="text-xl md:text-3xl font-bold leading-none">Busão dos Bichos</h1>
-        <p class="text-xs md:text-sm font-semibold text-slate-500 mt-1">Terceiro Excluído</p>
+        <p class="text-xs md:text-sm font-semibold text-slate-500 mt-1">CAMPO ADITIVO</p>
       </div>
     </div>
     
@@ -146,7 +146,7 @@
     <!-- Ponto de Ônibus -->
     <div class="absolute left-1/2 -translate-x-1/2 bottom-[30%] flex flex-col items-center z-10">
       <div class="bg-rose-500 border-2 border-white text-white font-extrabold text-[10px] md:text-xs px-2.5 py-1 rounded-full shadow-md uppercase tracking-wider flex items-center gap-1">
-        <span>🚏</span> PONTO CENTRAL
+        <span>🚏</span> PONTO
       </div>
       <div class="w-2 h-10 md:h-14 bg-slate-400 border border-slate-700 shadow-inner"></div>
       <div class="w-24 md:w-36 h-2 md:h-3 bg-stone-300 border border-slate-600 rounded-full shadow-md"></div>
@@ -747,7 +747,7 @@
       if (myToken !== gameToken) return;
 
       statusIcon.textContent = "🏣";
-      statusMsg.textContent = "Indo para o Ponto Central...";
+      statusMsg.textContent = "Indo para o Ponto de Embarque...";
       await moveBus(getCenterLeft(), 1400);
       if (myToken !== gameToken) return;
       
