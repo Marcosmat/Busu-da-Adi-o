@@ -9,7 +9,6 @@
 <style>
   * { font-family: 'Fredoka', cursive, system-ui, sans-serif; user-select: none; -webkit-user-select: none; }
 
-  /* Previne rolagem e garante que o jogo ocupe a tela toda */
   body {
     height: 100dvh;
     width: 100vw;
@@ -42,12 +41,12 @@
   }
   .waving { animation: waveHand 0.6s infinite ease-in-out; }
 
-  /* Janelas pretas para alto contraste dos emojis */
+  /* Janelas pretas */
   .window-seat { background: #000000; transition: background-color 0.4s ease, box-shadow 0.4s ease; }
   .window-seat.revealed { 
     background: #000000; 
     box-shadow: inset 0 0 8px rgba(255, 255, 255, 0.1); 
-    border-color: #334155 !important;
+    border-color: #1e293b !important;
   }
 
   .animal-in-seat { opacity: 0; transform: scale(0.2); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); filter: blur(4px); }
@@ -70,11 +69,18 @@
   .pedestrian-feet { display: flex; gap: 8px; margin-top: -6px; }
   .foot { width: 6px; height: 4px; background: #334155; border-radius: 999px; }
 
+  /* Símbolo ? ENORME e de alto contraste */
   .mystery-q {
-    position: absolute; font-size: clamp(1.2rem, 5vw, 1.8rem); font-weight: 900;
-    color: #f59e0b; text-shadow: 0 2px 4px rgba(0,0,0,0.35);
+    position: absolute; 
+    font-size: clamp(3rem, 12vw, 5rem); 
+    font-weight: 900;
+    color: #fef08a; /* Amarelo claro brilhante */
+    -webkit-text-stroke: 3px black; /* Borda preta para navegadores Webkit */
+    text-shadow: 
+      3px 3px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000,
+      4px 4px 0 rgba(0,0,0,0.5); /* Sombra extra */
     z-index: 50; pointer-events: none;
-    opacity: 0; transition: all 0.8s ease-out;
+    opacity: 0; transition: all 1s ease-out;
   }
 
   .option-btn {
@@ -101,7 +107,7 @@
 </head>
 <body class="bg-gradient-to-b from-sky-400 via-sky-200 to-emerald-500 items-center justify-between p-1 md:p-4 text-slate-800">
 
-  <!-- Header Centralizado e com Fontes Maiores -->
+  <!-- Header Centralizado com Botão de Replay -->
   <header class="w-full max-w-4xl bg-white/95 backdrop-blur border-4 border-slate-800 rounded-2xl p-2 md:p-3 shadow-lg flex flex-col md:flex-row items-center justify-between gap-2 md:gap-4 z-10 shrink-0">
     <div class="flex items-center gap-2 md:gap-3">
       <span class="text-3xl md:text-4xl">🚌</span>
@@ -112,6 +118,8 @@
     </div>
     
     <div class="flex items-center justify-center gap-2 md:gap-4 font-bold text-sm md:text-lg">
+      <!-- Botão de Replay -->
+      <button id="replayBtn" disabled title="Repetir questão atual" class="bg-slate-200 hover:bg-slate-300 disabled:opacity-50 disabled:cursor-not-allowed border-2 border-slate-800 rounded-xl px-3 py-1.5 md:px-4 md:py-2 shadow-[0_3px_0_#1e293b] active:translate-y-1 active:shadow-none transition-all">🔄</button>
       <button id="muteBtn" title="Som" class="bg-slate-100 hover:bg-slate-200 border-2 border-slate-800 rounded-xl px-3 py-1.5 md:px-4 md:py-2 shadow-[0_3px_0_#1e293b] active:translate-y-1 active:shadow-none transition-all">🔊</button>
       <div class="bg-amber-100 border-2 border-slate-800 rounded-xl px-3 py-1.5 md:px-4 md:py-2 flex items-center gap-1.5 shadow-[0_3px_0_#1e293b]">
         <span>⭐</span><span id="scoreVal" class="text-amber-800">0</span>
@@ -137,44 +145,45 @@
       <div class="w-24 md:w-36 h-2 md:h-3 bg-stone-300 border border-slate-600 rounded-full shadow-md"></div>
     </div>
 
-    <!-- Ônibus Responsivo e Mais Alto -->
+    <!-- Ônibus Verde Escuro -->
     <div id="busContainer" class="absolute bottom-[12%] w-[92%] max-w-[580px] h-[130px] md:h-[160px] z-30 transition-all duration-300">
       <div class="absolute -top-8 md:-top-10 left-1/2 -translate-x-1/2 hidden" id="mysteryBadge">
         <div class="bg-purple-600 text-white font-black px-4 md:px-5 py-1 rounded-xl border-3 border-slate-800 shadow-lg text-xl md:text-2xl pulse-q">❓</div>
       </div>
 
-      <div id="busBody" class="relative w-full h-full bg-amber-400 border-4 border-slate-800 rounded-t-3xl rounded-b-xl shadow-[inset_0_-10px_0_#d97706] p-2 md:p-3 flex gap-1.5 md:gap-2 items-center">
-        <div class="absolute right-0 bottom-4 md:bottom-5 w-2 md:w-3 h-6 md:h-8 bg-yellow-200 border-2 border-slate-800 rounded-r-md shadow-[0_0_8px_#fef08a]"></div>
+      <!-- Corpo do Ônibus: emerald-800 (Verde Muito Escuro) -->
+      <div id="busBody" class="relative w-full h-full bg-emerald-800 border-4 border-slate-900 rounded-t-3xl rounded-b-xl shadow-[inset_0_-10px_0_#064e3b] p-2 md:p-3 flex gap-1.5 md:gap-2 items-center">
+        <div class="absolute right-0 bottom-4 md:bottom-5 w-2 md:w-3 h-6 md:h-8 bg-yellow-200 border-2 border-slate-900 rounded-r-md shadow-[0_0_8px_#fef08a]"></div>
 
         <!-- Porta -->
-        <div id="doorFrame" class="absolute right-[12%] bottom-0 w-[9%] h-[85%] bg-slate-900 border-t-2 border-x-2 border-slate-800 rounded-t-lg z-40 overflow-hidden flex shadow-inner">
-          <div class="bus-door-panel-left w-1/2 h-full bg-sky-200 border-r border-slate-800 p-0.5 flex flex-col justify-between">
-            <div class="w-full h-1/2 bg-sky-100 border border-slate-400 rounded-sm"></div>
+        <div id="doorFrame" class="absolute right-[12%] bottom-0 w-[9%] h-[85%] bg-slate-900 border-t-2 border-x-2 border-slate-950 rounded-t-lg z-40 overflow-hidden flex shadow-inner">
+          <div class="bus-door-panel-left w-1/2 h-full bg-emerald-100 border-r border-slate-900 p-0.5 flex flex-col justify-between">
+            <div class="w-full h-1/2 bg-emerald-50 border border-slate-400 rounded-sm"></div>
             <div class="w-full h-1/3 bg-slate-300 rounded-sm"></div>
           </div>
-          <div class="bus-door-panel-right w-1/2 h-full bg-sky-200 border-l border-slate-800 p-0.5 flex flex-col justify-between">
-            <div class="w-full h-1/2 bg-sky-100 border border-slate-400 rounded-sm"></div>
+          <div class="bus-door-panel-right w-1/2 h-full bg-emerald-100 border-l border-slate-900 p-0.5 flex flex-col justify-between">
+            <div class="w-full h-1/2 bg-emerald-50 border border-slate-400 rounded-sm"></div>
             <div class="w-full h-1/3 bg-slate-300 rounded-sm"></div>
           </div>
         </div>
 
         <!-- Rampa -->
-        <div id="busRampContainer" class="bus-ramp absolute right-[10%] -bottom-[10px] w-[12%] h-3 md:h-4 bg-stone-400 border-2 border-slate-800 rounded-b-md z-30 shadow-md">
+        <div id="busRampContainer" class="bus-ramp absolute right-[10%] -bottom-[10px] w-[12%] h-3 md:h-4 bg-stone-400 border-2 border-slate-900 rounded-b-md z-30 shadow-md">
           <div class="w-full h-full bg-yellow-400 border-t border-slate-600"></div>
         </div>
 
-        <!-- Janelas (Pretas e Animais Maiores) -->
+        <!-- Janelas (Pretas e Animais) -->
         <div class="w-full h-[60%] md:h-[85px] grid grid-cols-10 gap-1 md:gap-1.5 pr-[24%] pl-1 md:pl-2">
-          <div class="window-seat rounded-md md:rounded-lg border-2 border-slate-700 flex items-center justify-center relative overflow-hidden"><span class="text-[7px] md:text-[9px] font-extrabold text-white/20 absolute top-0.5 left-1 hidden md:block">1</span><span id="seat0" class="animal-in-seat text-lg md:text-3xl"></span></div>
-          <div class="window-seat rounded-md md:rounded-lg border-2 border-slate-700 flex items-center justify-center relative overflow-hidden"><span class="text-[7px] md:text-[9px] font-extrabold text-white/20 absolute top-0.5 left-1 hidden md:block">2</span><span id="seat1" class="animal-in-seat text-lg md:text-3xl"></span></div>
-          <div class="window-seat rounded-md md:rounded-lg border-2 border-slate-700 flex items-center justify-center relative overflow-hidden"><span class="text-[7px] md:text-[9px] font-extrabold text-white/20 absolute top-0.5 left-1 hidden md:block">3</span><span id="seat2" class="animal-in-seat text-lg md:text-3xl"></span></div>
-          <div class="window-seat rounded-md md:rounded-lg border-2 border-slate-700 flex items-center justify-center relative overflow-hidden"><span class="text-[7px] md:text-[9px] font-extrabold text-white/20 absolute top-0.5 left-1 hidden md:block">4</span><span id="seat3" class="animal-in-seat text-lg md:text-3xl"></span></div>
-          <div class="window-seat rounded-md md:rounded-lg border-2 border-slate-700 flex items-center justify-center relative overflow-hidden"><span class="text-[7px] md:text-[9px] font-extrabold text-white/20 absolute top-0.5 left-1 hidden md:block">5</span><span id="seat4" class="animal-in-seat text-lg md:text-3xl"></span></div>
-          <div class="window-seat rounded-md md:rounded-lg border-2 border-slate-700 flex items-center justify-center relative overflow-hidden"><span class="text-[7px] md:text-[9px] font-extrabold text-white/20 absolute top-0.5 left-1 hidden md:block">6</span><span id="seat5" class="animal-in-seat text-lg md:text-3xl"></span></div>
-          <div class="window-seat rounded-md md:rounded-lg border-2 border-slate-700 flex items-center justify-center relative overflow-hidden"><span class="text-[7px] md:text-[9px] font-extrabold text-white/20 absolute top-0.5 left-1 hidden md:block">7</span><span id="seat6" class="animal-in-seat text-lg md:text-3xl"></span></div>
-          <div class="window-seat rounded-md md:rounded-lg border-2 border-slate-700 flex items-center justify-center relative overflow-hidden"><span class="text-[7px] md:text-[9px] font-extrabold text-white/20 absolute top-0.5 left-1 hidden md:block">8</span><span id="seat7" class="animal-in-seat text-lg md:text-3xl"></span></div>
-          <div class="window-seat rounded-md md:rounded-lg border-2 border-slate-700 flex items-center justify-center relative overflow-hidden"><span class="text-[7px] md:text-[9px] font-extrabold text-white/20 absolute top-0.5 left-1 hidden md:block">9</span><span id="seat8" class="animal-in-seat text-lg md:text-3xl"></span></div>
-          <div class="window-seat rounded-md md:rounded-lg border-2 border-slate-700 flex items-center justify-center relative overflow-hidden"><span class="text-[7px] md:text-[9px] font-extrabold text-white/20 absolute top-0.5 left-1 hidden md:block">10</span><span id="seat9" class="animal-in-seat text-lg md:text-3xl"></span></div>
+          <div class="window-seat rounded-md md:rounded-lg border-2 border-slate-950 flex items-center justify-center relative overflow-hidden"><span class="text-[7px] md:text-[9px] font-extrabold text-white/20 absolute top-0.5 left-1 hidden md:block">1</span><span id="seat0" class="animal-in-seat text-lg md:text-3xl"></span></div>
+          <div class="window-seat rounded-md md:rounded-lg border-2 border-slate-950 flex items-center justify-center relative overflow-hidden"><span class="text-[7px] md:text-[9px] font-extrabold text-white/20 absolute top-0.5 left-1 hidden md:block">2</span><span id="seat1" class="animal-in-seat text-lg md:text-3xl"></span></div>
+          <div class="window-seat rounded-md md:rounded-lg border-2 border-slate-950 flex items-center justify-center relative overflow-hidden"><span class="text-[7px] md:text-[9px] font-extrabold text-white/20 absolute top-0.5 left-1 hidden md:block">3</span><span id="seat2" class="animal-in-seat text-lg md:text-3xl"></span></div>
+          <div class="window-seat rounded-md md:rounded-lg border-2 border-slate-950 flex items-center justify-center relative overflow-hidden"><span class="text-[7px] md:text-[9px] font-extrabold text-white/20 absolute top-0.5 left-1 hidden md:block">4</span><span id="seat3" class="animal-in-seat text-lg md:text-3xl"></span></div>
+          <div class="window-seat rounded-md md:rounded-lg border-2 border-slate-950 flex items-center justify-center relative overflow-hidden"><span class="text-[7px] md:text-[9px] font-extrabold text-white/20 absolute top-0.5 left-1 hidden md:block">5</span><span id="seat4" class="animal-in-seat text-lg md:text-3xl"></span></div>
+          <div class="window-seat rounded-md md:rounded-lg border-2 border-slate-950 flex items-center justify-center relative overflow-hidden"><span class="text-[7px] md:text-[9px] font-extrabold text-white/20 absolute top-0.5 left-1 hidden md:block">6</span><span id="seat5" class="animal-in-seat text-lg md:text-3xl"></span></div>
+          <div class="window-seat rounded-md md:rounded-lg border-2 border-slate-950 flex items-center justify-center relative overflow-hidden"><span class="text-[7px] md:text-[9px] font-extrabold text-white/20 absolute top-0.5 left-1 hidden md:block">7</span><span id="seat6" class="animal-in-seat text-lg md:text-3xl"></span></div>
+          <div class="window-seat rounded-md md:rounded-lg border-2 border-slate-950 flex items-center justify-center relative overflow-hidden"><span class="text-[7px] md:text-[9px] font-extrabold text-white/20 absolute top-0.5 left-1 hidden md:block">8</span><span id="seat7" class="animal-in-seat text-lg md:text-3xl"></span></div>
+          <div class="window-seat rounded-md md:rounded-lg border-2 border-slate-950 flex items-center justify-center relative overflow-hidden"><span class="text-[7px] md:text-[9px] font-extrabold text-white/20 absolute top-0.5 left-1 hidden md:block">9</span><span id="seat8" class="animal-in-seat text-lg md:text-3xl"></span></div>
+          <div class="window-seat rounded-md md:rounded-lg border-2 border-slate-950 flex items-center justify-center relative overflow-hidden"><span class="text-[7px] md:text-[9px] font-extrabold text-white/20 absolute top-0.5 left-1 hidden md:block">10</span><span id="seat9" class="animal-in-seat text-lg md:text-3xl"></span></div>
         </div>
 
         <!-- Rodas -->
@@ -210,14 +219,12 @@
     </div>
 
     <div id="optionsArea" class="hidden flex flex-col gap-2 md:gap-3">
-      <!-- Campo da Pergunta com Fonte Bem Maior -->
       <div id="questionPrompt" class="text-center my-1"></div>
-      
       <div id="optionsGrid" class="grid grid-cols-3 gap-2 md:gap-3"></div>
     </div>
   </footer>
 
-  <!-- Welcome Modal (Fontes Maiores) -->
+  <!-- Welcome Modal -->
   <div id="modalOverlay" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
     <div class="bg-white border-4 border-slate-800 rounded-3xl p-5 md:p-8 max-w-md w-full text-center shadow-2xl flex flex-col items-center gap-4 my-auto">
       <div class="text-5xl md:text-6xl animate-bounce">🚌🦁🐼</div>
@@ -335,9 +342,11 @@
   // ============================================================
   // ESTADO
   // ============================================================
+  let gameToken = 0; // Usado para abortar animações antigas se o jogador reiniciar
   let questionNumber = 0;
   let score = 0;
   let firstTryCorrect = 0;
+  let currentQuestion = null; // Salva a questão para o botão de replay
   let currentOptions = [];
   let optionButtons = [];
   let roundAttempts = 0;
@@ -360,11 +369,13 @@
   const statusIcon = document.getElementById("statusIcon");
   const scoreVal = document.getElementById("scoreVal");
   const questionVal = document.getElementById("questionVal");
+  
+  const replayBtn = document.getElementById("replayBtn");
+  const muteBtn = document.getElementById("muteBtn");
 
   const optionsArea = document.getElementById("optionsArea");
   const optionsGrid = document.getElementById("optionsGrid");
   const questionPrompt = document.getElementById("questionPrompt");
-  const muteBtn = document.getElementById("muteBtn");
 
   // ============================================================
   // HUD E UTILITÁRIOS VISUAIS
@@ -644,6 +655,12 @@
   // FLUXO DA QUESTÃO
   // ============================================================
   async function runQuestion(q) {
+    // Cria uma nova "sessão" para cancelar animações anteriores
+    const myToken = ++gameToken; 
+    
+    // Habilita botão de replay
+    replayBtn.disabled = false;
+
     walkStage.innerHTML = "";
     setDoorOpen(false);
     setWindowsRevealed(false);
@@ -663,26 +680,33 @@
       SoundManager.play('busArriving');
 
       await moveBus(15, 1200);
+      if (myToken !== gameToken) return;
       await sleep(800);
+      if (myToken !== gameToken) return;
 
       statusIcon.textContent = "🏣";
       statusMsg.textContent = "Indo para o Ponto Central...";
       await moveBus(getCenterLeft(), 1400);
+      if (myToken !== gameToken) return;
+      
       SoundManager.play('busAtDestination');
-
       setDoorOpen(true);
       await sleep(600);
+      if (myToken !== gameToken) return;
 
-      await performTransformations(q);
+      await performTransformations(q, myToken);
+      if (myToken !== gameToken) return;
 
       setDoorOpen(false);
       await sleep(500);
+      if (myToken !== gameToken) return;
 
       setWindowsRevealed(true);
       renderSeats();
       statusIcon.textContent = "👀";
       statusMsg.textContent = `Agora há ${q.final} animais no busão!`;
       await sleep(2200);
+      if (myToken !== gameToken) return;
 
       showOptions(q);
 
@@ -692,31 +716,37 @@
       SoundManager.play('busArriving');
 
       await moveBus(15, 1200);
+      if (myToken !== gameToken) return;
 
       statusIcon.textContent = "👀";
       statusMsg.textContent = "Memorize quem está a bordo!";
       setWindowsRevealed(true);
       renderSeats(true);
       await sleep(5000);
+      if (myToken !== gameToken) return;
 
       renderSeats(false);
       setWindowsRevealed(false);
       statusIcon.textContent = "🏣";
       statusMsg.textContent = `Havia ${q.initial} animais no início. Indo...`;
       await moveBus(getCenterLeft(), 1400);
+      if (myToken !== gameToken) return;
+      
       SoundManager.play('busAtDestination');
-
       setDoorOpen(true);
       await sleep(600);
+      if (myToken !== gameToken) return;
 
       if (q.scenario === 1) {
-        await performTransformations(q);
+        await performTransformations(q, myToken);
       } else {
-        await performMysteryTransformation(q);
+        await performMysteryTransformation(q, myToken);
       }
+      if (myToken !== gameToken) return;
 
       setDoorOpen(false);
       await sleep(500);
+      if (myToken !== gameToken) return;
 
       if (q.scenario === 3) {
         setWindowsRevealed(true);
@@ -724,13 +754,14 @@
         statusIcon.textContent = "👀";
         statusMsg.textContent = `Agora há ${q.final} animais no busão!`;
         await sleep(2200);
+        if (myToken !== gameToken) return;
       }
 
       showOptions(q);
     }
   }
 
-  async function performTransformations(q) {
+  async function performTransformations(q, myToken) {
     const busRect = busContainer.getBoundingClientRect();
     const stageRect = gameStage.getBoundingClientRect();
     
@@ -741,45 +772,63 @@
     if (q.leave > 0) {
       statusIcon.textContent = "🚶";
       statusMsg.textContent = `${q.leave} bicho(s) desembarcando!`;
-      SoundManager.play('animalsLeaving');
 
       for (let i = 0; i < q.leave; i++) {
         await sleep(1100);
+        if (myToken !== gameToken) return;
+
+        // Som TOCA INDIVIDUALMENTE para cada animal que sai
+        SoundManager.play('animalsLeaving');
+
         const emoji = currentPassengers.pop() || getRandomAnimal();
         renderSeats();
         const actor = createPedestrian(emoji);
         actor.style.left = `${doorX}px`;
         actor.style.top = `${busFloorY}px`;
         walkStage.appendChild(actor);
+        
         await animatePath(actor, doorX, busFloorY, doorX, sidewalkY, 600);
+        if (myToken !== gameToken) { actor.remove(); return; }
+        
         await animatePath(actor, doorX, sidewalkY, stageRect.width + 60, sidewalkY, 1800);
         actor.remove();
       }
       await sleep(300);
+      if (myToken !== gameToken) return;
     }
 
     if (q.board > 0) {
       statusIcon.textContent = "🚶";
       statusMsg.textContent = `${q.board} bicho(s) embarcando!`;
-      SoundManager.play('animalsBoarding');
 
       for (let i = 0; i < q.board; i++) {
         await sleep(900);
+        if (myToken !== gameToken) return;
+
+        // Som TOCA INDIVIDUALMENTE para cada animal que entra
+        SoundManager.play('animalsBoarding');
+
         const emoji = getRandomAnimal();
         const actor = createPedestrian(emoji);
         actor.style.left = `-50px`;
         actor.style.top = `${sidewalkY}px`;
         walkStage.appendChild(actor);
+        
         await animatePath(actor, -50, sidewalkY, doorX, sidewalkY, 1600);
+        if (myToken !== gameToken) { actor.remove(); return; }
+        
         await animatePath(actor, doorX, sidewalkY, doorX, busFloorY, 600);
         actor.remove();
+        
+        if (myToken !== gameToken) return;
+        
         currentPassengers.push(emoji);
         renderSeats();
       }
     }
   }
 
-  async function performMysteryTransformation(q) {
+  async function performMysteryTransformation(q, myToken) {
     const busRect = busContainer.getBoundingClientRect();
     const stageRect = gameStage.getBoundingClientRect();
     const doorX = (busRect.left - stageRect.left) + (busRect.width * 0.82);
@@ -791,25 +840,32 @@
     statusMsg.textContent = "Animais misteriosos passando! Não dá para contar...";
     mysteryBadge.classList.remove("hidden");
 
-    for (let i = 0; i < 6; i++) {
+    // Gera 12 "?" enormes
+    for (let i = 0; i < 12; i++) {
       const el = document.createElement("div");
       el.className = "mystery-q";
       el.textContent = "?";
-      el.style.left = `${doorX}px`;
-      el.style.top = `${doorY}px`;
+      
+      // Posiciona um pouco aleatório perto da porta
+      const randX = doorX + (Math.random() * 40 - 20);
+      const randY = doorY + (Math.random() * 40 - 20);
+      
+      el.style.left = `${randX}px`;
+      el.style.top = `${randY}px`;
       walkStage.appendChild(el);
 
       setTimeout(() => {
+        if (myToken !== gameToken) return;
         el.style.opacity = '1';
-        const dx = direction === 'out' ? (Math.random() * 80 + 20) : -(Math.random() * 80 + 20);
-        const dy = direction === 'out' ? (Math.random() * 30 + 10) : -(Math.random() * 30 + 10);
-        el.style.transform = `translate(${dx}px, ${dy}px)`;
-      }, i * 130);
+        const dx = direction === 'out' ? (Math.random() * 100 + 50) : -(Math.random() * 100 + 50);
+        const dy = direction === 'out' ? (Math.random() * 40 + 20) : -(Math.random() * 40 + 20);
+        el.style.transform = `translate(${dx}px, ${dy}px) scale(1.2)`;
+      }, i * 100);
 
       setTimeout(() => {
         el.style.opacity = '0';
         setTimeout(() => el.remove(), 400);
-      }, 900 + i * 130);
+      }, 1000 + i * 100);
     }
 
     if (q.leave > 0) {
@@ -819,14 +875,16 @@
       for (let i = 0; i < q.board; i++) currentPassengers.push(getRandomAnimal());
     }
 
-    await sleep(2400);
+    await sleep(2600);
+    if (myToken !== gameToken) return;
     mysteryBadge.classList.add("hidden");
   }
 
   // ============================================================
-  // MOSTRAR OPÇÕES (Pergunta Grande e Destacada)
+  // MOSTRAR OPÇÕES
   // ============================================================
   function showOptions(q) {
+    currentQuestion = q; // Salva para o replay
     currentOptions = generateOptions(q);
     optionsGrid.innerHTML = "";
     optionButtons = [];
@@ -844,7 +902,6 @@
       optionButtons.push(btn);
     });
 
-    // Fonte da pergunta grande e alto contraste
     questionPrompt.innerHTML = `<span class="inline-block bg-indigo-600 text-white font-black text-lg md:text-2xl lg:text-3xl px-6 md:px-10 py-2.5 md:py-4 rounded-xl md:rounded-2xl border-3 md:border-4 border-slate-800 shadow-[0_4px_0_#1e293b]">${getPrompt(q)}</span>`;
     
     statusIcon.textContent = "🎯";
@@ -867,6 +924,7 @@
 
     if (opt.isCorrect) {
       optionsLocked = true;
+      replayBtn.disabled = true; // Desabilita replay durante a transição
       btn.classList.add("correct");
       SoundManager.play('success');
 
@@ -904,6 +962,7 @@
         if (correctBtn) {
           correctBtn.classList.add("correct");
           optionsLocked = true;
+          replayBtn.disabled = true;
           setTimeout(() => {
             const points = 2 * questionNumber;
             score += points;
@@ -940,6 +999,7 @@
   }
 
   function showEndScreen() {
+    replayBtn.disabled = true;
     document.getElementById("finalScore").textContent = score;
     document.getElementById("finalStats").textContent = `${firstTryCorrect} de ${TOTAL_QUESTIONS} acertos na primeira tentativa.`;
     document.getElementById("endModal").classList.remove("hidden");
@@ -947,9 +1007,10 @@
   }
 
   // ============================================================
-  // INICIAR / REINICIAR
+  // INICIAR / REINICIAR / REPLAY
   // ============================================================
   function startGame() {
+    gameToken++; // Aborta qualquer animação em andamento
     questionNumber = 0;
     score = 0;
     firstTryCorrect = 0;
@@ -967,6 +1028,12 @@
     busContainer.style.transition = "none";
     busContainer.style.left = `${getOffscreenLeft()}px`;
     startGame();
+  });
+
+  // Lógica do Botão de Replay (Recomeça a questão atual com os mesmos números)
+  replayBtn.addEventListener("click", () => {
+    if (!currentQuestion) return;
+    runQuestion(currentQuestion);
   });
 
   muteBtn.addEventListener("click", () => {
