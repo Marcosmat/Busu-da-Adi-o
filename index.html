@@ -31,12 +31,12 @@
     25% { transform: translateY(-4px) rotate(-6deg); }
     50% { transform: translateY(0) rotate(0deg); }
     75% { transform: translateY(-4px) rotate(6deg); }
-    100% { transform: translateY(0) rotate(0deg); }
+    0% { transform: translateY(0) rotate(0deg); }
   }
   .walking-actor { animation: animalWalk 0.35s infinite linear; }
 
   @keyframes waveHand {
-    0%, 100% { transform: scale(1) rotate(0deg); }
+    0%, 0% { transform: scale(1) rotate(0deg); }
     50% { transform: scale(1.15) rotate(12deg); }
   }
   .waving { animation: waveHand 0.6s infinite ease-in-out; }
@@ -53,8 +53,8 @@
 
   .bus-door-panel-left { transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
   .bus-door-panel-right { transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
-  .door-open .bus-door-panel-left { transform: translateX(-100%); }
-  .door-open .bus-door-panel-right { transform: translateX(100%); }
+  .door-open .bus-door-panel-left { transform: translateX(-0%); }
+  .door-open .bus-door-panel-right { transform: translateX(0%); }
 
   .bus-ramp { transition: transform 0.4s ease, opacity 0.4s ease; transform-origin: top center; transform: scaleY(0); opacity: 0; }
   .ramp-deployed .bus-ramp { transform: scaleY(1); opacity: 1; }
@@ -93,7 +93,7 @@
   .option-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #1e293b; }
   .option-btn.correct { background: #bbf7d0 !important; border-color: #16a34a !important; color: #14532d !important; animation: popCorrect 0.5s ease; }
   .option-btn.wrong { background: #fecaca !important; border-color: #dc2626 !important; color: #7f1d1d !important; animation: shakeBox 0.4s; }
-  @keyframes popCorrect { 0%{transform:scale(1)} 50%{transform:scale(1.06)} 100%{transform:scale(1)} }
+  @keyframes popCorrect { 0%{transform:scale(1)} 50%{transform:scale(1.06)} 0%{transform:scale(1)} }
   @keyframes shakeBox { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
 
   @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -239,9 +239,9 @@
       <div class="text-5xl md:text-6xl animate-bounce">🚌🦁🐼</div>
       <h2 class="text-2xl md:text-3xl font-black">Busão dos Bichos!</h2>
       <div class="text-sm md:text-base font-semibold text-slate-700 flex flex-col gap-3 text-left bg-sky-50 p-4 md:p-5 rounded-2xl border-2 border-sky-200">
-        <p>🎯 <strong>10 desafios</strong> de adição e subtração com o busão!</p>
+        <p>🎯 <strong>10 desafios</strong> de adição e subtração!</p>
         <p>🔍 Às vezes você vai descobrir <strong>quantos ficaram</strong>, às vezes <strong>quantos havia no início</strong>, às vezes <strong>quantos entraram ou saíram</strong>.</p>
-        <p>👀 Preste atenção em cada pista. Escolha a <strong>resposta certa</strong> entre 3 opções!</p>
+        <p>👀 Preste atenção e escolha a <strong>resposta certa</strong> entre as opções!</p>
         <p>💡 Acertos de primeira valem mais pontos!</p>
       </div>
       <button id="startModalBtn" class="w-full bg-emerald-400 hover:bg-emerald-300 text-slate-900 font-black text-lg md:text-xl py-3 md:py-4 rounded-xl border-3 border-slate-800 shadow-[0_4px_0_#1e293b] active:translate-y-1 active:shadow-none transition-all mt-2">
