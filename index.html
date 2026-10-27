@@ -9,7 +9,7 @@
 <style>
   * { font-family: 'Fredoka', cursive, system-ui, sans-serif; user-select: none; -webkit-user-select: none; }
 
-  /* Previne rolagem e garante que o jogo ocupe a tela toda (Dynamic Viewport Height) */
+  /* Previne rolagem e garante que o jogo ocupe a tela toda */
   body {
     height: 100dvh;
     width: 100vw;
@@ -42,8 +42,13 @@
   }
   .waving { animation: waveHand 0.6s infinite ease-in-out; }
 
-  .window-seat { background: #0f172a; transition: background-color 0.4s ease, box-shadow 0.4s ease; }
-  .window-seat.revealed { background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%); box-shadow: inset 0 0 10px rgba(56, 189, 248, 0.7); }
+  /* Janelas pretas para alto contraste dos emojis */
+  .window-seat { background: #000000; transition: background-color 0.4s ease, box-shadow 0.4s ease; }
+  .window-seat.revealed { 
+    background: #000000; 
+    box-shadow: inset 0 0 8px rgba(255, 255, 255, 0.1); 
+    border-color: #334155 !important;
+  }
 
   .animal-in-seat { opacity: 0; transform: scale(0.2); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); filter: blur(4px); }
   .window-seat.revealed .animal-in-seat { opacity: 1; transform: scale(1); filter: blur(0); }
@@ -73,8 +78,8 @@
   }
 
   .option-btn {
-    min-height: clamp(3rem, 8vh, 4.5rem); padding: 0.5rem;
-    font-size: clamp(1.25rem, 5vw, 2rem); font-weight: 900;
+    min-height: clamp(3.5rem, 9vh, 5rem); padding: 0.5rem;
+    font-size: clamp(1.5rem, 6vw, 2.5rem); font-weight: 900;
     border: 3px solid #1e293b; border-radius: 0.85rem;
     background: white; box-shadow: 0 4px 0 #1e293b;
     cursor: pointer; transition: transform 0.12s, background-color 0.15s, box-shadow 0.12s;
@@ -96,48 +101,50 @@
 </head>
 <body class="bg-gradient-to-b from-sky-400 via-sky-200 to-emerald-500 items-center justify-between p-1 md:p-4 text-slate-800">
 
-  <header class="w-full max-w-4xl bg-white/95 backdrop-blur border-4 border-slate-800 rounded-2xl p-2 md:p-3 shadow-lg flex flex-wrap items-center justify-between gap-2 z-10 shrink-0">
-    <div class="flex items-center gap-2">
-      <span class="text-2xl md:text-3xl">🚌</span>
-      <div>
-        <h1 class="text-lg md:text-2xl font-bold leading-none">Busão dos Bichos</h1>
-        <p class="text-[10px] md:text-xs font-semibold text-slate-500">Terceiro Excluído</p>
+  <!-- Header Centralizado e com Fontes Maiores -->
+  <header class="w-full max-w-4xl bg-white/95 backdrop-blur border-4 border-slate-800 rounded-2xl p-2 md:p-3 shadow-lg flex flex-col md:flex-row items-center justify-between gap-2 md:gap-4 z-10 shrink-0">
+    <div class="flex items-center gap-2 md:gap-3">
+      <span class="text-3xl md:text-4xl">🚌</span>
+      <div class="text-center md:text-left">
+        <h1 class="text-xl md:text-3xl font-bold leading-none">Busão dos Bichos</h1>
+        <p class="text-xs md:text-sm font-semibold text-slate-500 mt-1">Terceiro Excluído</p>
       </div>
     </div>
-    <div class="flex items-center gap-1 md:gap-3 font-bold text-xs md:text-base">
-      <button id="muteBtn" title="Som" class="bg-slate-100 border-2 border-slate-800 rounded-lg md:rounded-xl px-2 py-0.5 shadow-[0_2px_0_#1e293b] hover:bg-slate-200">🔊</button>
-      <div class="bg-amber-100 border-2 border-slate-800 rounded-lg md:rounded-xl px-2 md:px-3 py-1 flex items-center gap-1 shadow-[0_2px_0_#1e293b]">
+    
+    <div class="flex items-center justify-center gap-2 md:gap-4 font-bold text-sm md:text-lg">
+      <button id="muteBtn" title="Som" class="bg-slate-100 hover:bg-slate-200 border-2 border-slate-800 rounded-xl px-3 py-1.5 md:px-4 md:py-2 shadow-[0_3px_0_#1e293b] active:translate-y-1 active:shadow-none transition-all">🔊</button>
+      <div class="bg-amber-100 border-2 border-slate-800 rounded-xl px-3 py-1.5 md:px-4 md:py-2 flex items-center gap-1.5 shadow-[0_3px_0_#1e293b]">
         <span>⭐</span><span id="scoreVal" class="text-amber-800">0</span>
       </div>
-      <div class="bg-purple-100 border-2 border-slate-800 rounded-lg md:rounded-xl px-2 md:px-3 py-1 flex items-center gap-1 shadow-[0_2px_0_#1e293b]">
+      <div class="bg-purple-100 border-2 border-slate-800 rounded-xl px-3 py-1.5 md:px-4 md:py-2 flex items-center gap-1.5 shadow-[0_3px_0_#1e293b]">
         <span>📋</span><span id="questionVal" class="text-purple-800">0/10</span>
       </div>
     </div>
   </header>
 
-  <!-- Palco Principal: verde escurecido para emerald-600 -->
+  <!-- Palco Principal -->
   <main id="gameStage" class="w-full max-w-4xl relative flex-1 bg-gradient-to-b from-sky-300 via-sky-100 to-emerald-600 rounded-3xl border-4 border-slate-800 overflow-hidden my-1 md:my-2 shadow-2xl">
     
-    <div class="absolute top-2 left-4 text-2xl md:text-3xl opacity-80">☁️</div>
-    <div class="absolute top-4 right-8 text-3xl md:text-4xl opacity-70">☁️</div>
+    <div class="absolute top-2 left-4 text-2xl md:text-4xl opacity-80">☁️</div>
+    <div class="absolute top-4 right-8 text-3xl md:text-5xl opacity-70">☁️</div>
 
     <!-- Ponto de Ônibus -->
     <div class="absolute left-1/2 -translate-x-1/2 bottom-[30%] flex flex-col items-center z-10">
-      <div class="bg-rose-500 border-2 border-white text-white font-extrabold text-[9px] md:text-[11px] px-2 py-0.5 rounded-full shadow-md uppercase tracking-wider flex items-center gap-1">
+      <div class="bg-rose-500 border-2 border-white text-white font-extrabold text-[10px] md:text-xs px-2.5 py-1 rounded-full shadow-md uppercase tracking-wider flex items-center gap-1">
         <span>🚏</span> PONTO CENTRAL
       </div>
       <div class="w-2 h-10 md:h-14 bg-slate-400 border border-slate-700 shadow-inner"></div>
       <div class="w-24 md:w-36 h-2 md:h-3 bg-stone-300 border border-slate-600 rounded-full shadow-md"></div>
     </div>
 
-    <!-- Ônibus Responsivo -->
-    <div id="busContainer" class="absolute bottom-[15%] w-[92%] max-w-[580px] h-[100px] md:h-[125px] z-30 transition-all duration-300">
+    <!-- Ônibus Responsivo e Mais Alto -->
+    <div id="busContainer" class="absolute bottom-[12%] w-[92%] max-w-[580px] h-[130px] md:h-[160px] z-30 transition-all duration-300">
       <div class="absolute -top-8 md:-top-10 left-1/2 -translate-x-1/2 hidden" id="mysteryBadge">
-        <div class="bg-purple-600 text-white font-black px-3 md:px-4 py-1 rounded-xl border-3 border-slate-800 shadow-lg text-lg md:text-xl pulse-q">❓</div>
+        <div class="bg-purple-600 text-white font-black px-4 md:px-5 py-1 rounded-xl border-3 border-slate-800 shadow-lg text-xl md:text-2xl pulse-q">❓</div>
       </div>
 
-      <div id="busBody" class="relative w-full h-full bg-amber-400 border-4 border-slate-800 rounded-t-3xl rounded-b-xl shadow-[inset_0_-8px_0_#d97706] p-1.5 md:p-2 flex gap-1 md:gap-1.5 items-center">
-        <div class="absolute right-0 bottom-3 md:bottom-4 w-1.5 md:w-2 h-5 md:h-6 bg-yellow-200 border-2 border-slate-800 rounded-r-md shadow-[0_0_8px_#fef08a]"></div>
+      <div id="busBody" class="relative w-full h-full bg-amber-400 border-4 border-slate-800 rounded-t-3xl rounded-b-xl shadow-[inset_0_-10px_0_#d97706] p-2 md:p-3 flex gap-1.5 md:gap-2 items-center">
+        <div class="absolute right-0 bottom-4 md:bottom-5 w-2 md:w-3 h-6 md:h-8 bg-yellow-200 border-2 border-slate-800 rounded-r-md shadow-[0_0_8px_#fef08a]"></div>
 
         <!-- Porta -->
         <div id="doorFrame" class="absolute right-[12%] bottom-0 w-[9%] h-[85%] bg-slate-900 border-t-2 border-x-2 border-slate-800 rounded-t-lg z-40 overflow-hidden flex shadow-inner">
@@ -152,30 +159,30 @@
         </div>
 
         <!-- Rampa -->
-        <div id="busRampContainer" class="bus-ramp absolute right-[10%] -bottom-[8px] w-[12%] h-2.5 md:h-3 bg-stone-400 border-2 border-slate-800 rounded-b-md z-30 shadow-md">
+        <div id="busRampContainer" class="bus-ramp absolute right-[10%] -bottom-[10px] w-[12%] h-3 md:h-4 bg-stone-400 border-2 border-slate-800 rounded-b-md z-30 shadow-md">
           <div class="w-full h-full bg-yellow-400 border-t border-slate-600"></div>
         </div>
 
-        <!-- Janelas (Grid responsivo) -->
-        <div class="w-full h-[55%] md:h-[64px] grid grid-cols-10 gap-0.5 md:gap-1 pr-[24%] pl-1">
-          <div class="window-seat rounded-md md:rounded-lg border-2 border-slate-800 flex items-center justify-center relative overflow-hidden"><span class="text-[7px] md:text-[9px] font-extrabold text-white/40 absolute top-0.5 left-1 hidden md:block">1</span><span id="seat0" class="animal-in-seat text-sm md:text-2xl"></span></div>
-          <div class="window-seat rounded-md md:rounded-lg border-2 border-slate-800 flex items-center justify-center relative overflow-hidden"><span class="text-[7px] md:text-[9px] font-extrabold text-white/40 absolute top-0.5 left-1 hidden md:block">2</span><span id="seat1" class="animal-in-seat text-sm md:text-2xl"></span></div>
-          <div class="window-seat rounded-md md:rounded-lg border-2 border-slate-800 flex items-center justify-center relative overflow-hidden"><span class="text-[7px] md:text-[9px] font-extrabold text-white/40 absolute top-0.5 left-1 hidden md:block">3</span><span id="seat2" class="animal-in-seat text-sm md:text-2xl"></span></div>
-          <div class="window-seat rounded-md md:rounded-lg border-2 border-slate-800 flex items-center justify-center relative overflow-hidden"><span class="text-[7px] md:text-[9px] font-extrabold text-white/40 absolute top-0.5 left-1 hidden md:block">4</span><span id="seat3" class="animal-in-seat text-sm md:text-2xl"></span></div>
-          <div class="window-seat rounded-md md:rounded-lg border-2 border-slate-800 flex items-center justify-center relative overflow-hidden"><span class="text-[7px] md:text-[9px] font-extrabold text-white/40 absolute top-0.5 left-1 hidden md:block">5</span><span id="seat4" class="animal-in-seat text-sm md:text-2xl"></span></div>
-          <div class="window-seat rounded-md md:rounded-lg border-2 border-slate-800 flex items-center justify-center relative overflow-hidden"><span class="text-[7px] md:text-[9px] font-extrabold text-white/40 absolute top-0.5 left-1 hidden md:block">6</span><span id="seat5" class="animal-in-seat text-sm md:text-2xl"></span></div>
-          <div class="window-seat rounded-md md:rounded-lg border-2 border-slate-800 flex items-center justify-center relative overflow-hidden"><span class="text-[7px] md:text-[9px] font-extrabold text-white/40 absolute top-0.5 left-1 hidden md:block">7</span><span id="seat6" class="animal-in-seat text-sm md:text-2xl"></span></div>
-          <div class="window-seat rounded-md md:rounded-lg border-2 border-slate-800 flex items-center justify-center relative overflow-hidden"><span class="text-[7px] md:text-[9px] font-extrabold text-white/40 absolute top-0.5 left-1 hidden md:block">8</span><span id="seat7" class="animal-in-seat text-sm md:text-2xl"></span></div>
-          <div class="window-seat rounded-md md:rounded-lg border-2 border-slate-800 flex items-center justify-center relative overflow-hidden"><span class="text-[7px] md:text-[9px] font-extrabold text-white/40 absolute top-0.5 left-1 hidden md:block">9</span><span id="seat8" class="animal-in-seat text-sm md:text-2xl"></span></div>
-          <div class="window-seat rounded-md md:rounded-lg border-2 border-slate-800 flex items-center justify-center relative overflow-hidden"><span class="text-[7px] md:text-[9px] font-extrabold text-white/40 absolute top-0.5 left-1 hidden md:block">10</span><span id="seat9" class="animal-in-seat text-sm md:text-2xl"></span></div>
+        <!-- Janelas (Pretas e Animais Maiores) -->
+        <div class="w-full h-[60%] md:h-[85px] grid grid-cols-10 gap-1 md:gap-1.5 pr-[24%] pl-1 md:pl-2">
+          <div class="window-seat rounded-md md:rounded-lg border-2 border-slate-700 flex items-center justify-center relative overflow-hidden"><span class="text-[7px] md:text-[9px] font-extrabold text-white/20 absolute top-0.5 left-1 hidden md:block">1</span><span id="seat0" class="animal-in-seat text-lg md:text-3xl"></span></div>
+          <div class="window-seat rounded-md md:rounded-lg border-2 border-slate-700 flex items-center justify-center relative overflow-hidden"><span class="text-[7px] md:text-[9px] font-extrabold text-white/20 absolute top-0.5 left-1 hidden md:block">2</span><span id="seat1" class="animal-in-seat text-lg md:text-3xl"></span></div>
+          <div class="window-seat rounded-md md:rounded-lg border-2 border-slate-700 flex items-center justify-center relative overflow-hidden"><span class="text-[7px] md:text-[9px] font-extrabold text-white/20 absolute top-0.5 left-1 hidden md:block">3</span><span id="seat2" class="animal-in-seat text-lg md:text-3xl"></span></div>
+          <div class="window-seat rounded-md md:rounded-lg border-2 border-slate-700 flex items-center justify-center relative overflow-hidden"><span class="text-[7px] md:text-[9px] font-extrabold text-white/20 absolute top-0.5 left-1 hidden md:block">4</span><span id="seat3" class="animal-in-seat text-lg md:text-3xl"></span></div>
+          <div class="window-seat rounded-md md:rounded-lg border-2 border-slate-700 flex items-center justify-center relative overflow-hidden"><span class="text-[7px] md:text-[9px] font-extrabold text-white/20 absolute top-0.5 left-1 hidden md:block">5</span><span id="seat4" class="animal-in-seat text-lg md:text-3xl"></span></div>
+          <div class="window-seat rounded-md md:rounded-lg border-2 border-slate-700 flex items-center justify-center relative overflow-hidden"><span class="text-[7px] md:text-[9px] font-extrabold text-white/20 absolute top-0.5 left-1 hidden md:block">6</span><span id="seat5" class="animal-in-seat text-lg md:text-3xl"></span></div>
+          <div class="window-seat rounded-md md:rounded-lg border-2 border-slate-700 flex items-center justify-center relative overflow-hidden"><span class="text-[7px] md:text-[9px] font-extrabold text-white/20 absolute top-0.5 left-1 hidden md:block">7</span><span id="seat6" class="animal-in-seat text-lg md:text-3xl"></span></div>
+          <div class="window-seat rounded-md md:rounded-lg border-2 border-slate-700 flex items-center justify-center relative overflow-hidden"><span class="text-[7px] md:text-[9px] font-extrabold text-white/20 absolute top-0.5 left-1 hidden md:block">8</span><span id="seat7" class="animal-in-seat text-lg md:text-3xl"></span></div>
+          <div class="window-seat rounded-md md:rounded-lg border-2 border-slate-700 flex items-center justify-center relative overflow-hidden"><span class="text-[7px] md:text-[9px] font-extrabold text-white/20 absolute top-0.5 left-1 hidden md:block">9</span><span id="seat8" class="animal-in-seat text-lg md:text-3xl"></span></div>
+          <div class="window-seat rounded-md md:rounded-lg border-2 border-slate-700 flex items-center justify-center relative overflow-hidden"><span class="text-[7px] md:text-[9px] font-extrabold text-white/20 absolute top-0.5 left-1 hidden md:block">10</span><span id="seat9" class="animal-in-seat text-lg md:text-3xl"></span></div>
         </div>
 
         <!-- Rodas -->
-        <div class="absolute -bottom-3 md:-bottom-4 left-[10%] w-8 h-8 md:w-10 md:h-10 bg-slate-900 border-4 border-slate-800 rounded-full flex items-center justify-center shadow-lg z-50">
-          <div id="wheel1" class="w-2 h-2 md:w-3 md:h-3 bg-slate-300 rounded-full border border-slate-800"></div>
+        <div class="absolute -bottom-4 md:-bottom-5 left-[10%] w-10 h-10 md:w-12 md:h-12 bg-slate-900 border-4 border-slate-800 rounded-full flex items-center justify-center shadow-lg z-50">
+          <div id="wheel1" class="w-3 h-3 md:w-4 md:h-4 bg-slate-300 rounded-full border border-slate-800"></div>
         </div>
-        <div class="absolute -bottom-3 md:-bottom-4 right-[15%] w-8 h-8 md:w-10 md:h-10 bg-slate-900 border-4 border-slate-800 rounded-full flex items-center justify-center shadow-lg z-50">
-          <div id="wheel2" class="w-2 h-2 md:w-3 md:h-3 bg-slate-300 rounded-full border border-slate-800"></div>
+        <div class="absolute -bottom-4 md:-bottom-5 right-[15%] w-10 h-10 md:w-12 md:h-12 bg-slate-900 border-4 border-slate-800 rounded-full flex items-center justify-center shadow-lg z-50">
+          <div id="wheel2" class="w-3 h-3 md:w-4 md:h-4 bg-slate-300 rounded-full border border-slate-800"></div>
         </div>
       </div>
     </div>
@@ -193,7 +200,7 @@
     </div>
   </main>
 
-  <!-- Footer (Controles) -->
+  <!-- Footer -->
   <footer class="w-full max-w-4xl bg-white/95 backdrop-blur border-4 border-slate-800 rounded-2xl p-2 md:p-3 shadow-xl flex flex-col gap-2 z-10 shrink-0">
     <div class="bg-sky-50 border-2 border-sky-300 rounded-lg md:rounded-xl p-1.5 md:p-2.5 text-center flex items-center justify-center gap-2 min-h-[40px] md:min-h-[48px]">
       <span id="statusIcon" class="text-xl md:text-2xl animate-bounce">📢</span>
@@ -202,26 +209,26 @@
       </p>
     </div>
 
-    <div id="optionsArea" class="hidden flex flex-col gap-1.5 md:gap-3">
-      <!-- Pergunta Única (Contraste) -->
-      <div id="questionPrompt" class="text-center"></div>
+    <div id="optionsArea" class="hidden flex flex-col gap-2 md:gap-3">
+      <!-- Campo da Pergunta com Fonte Bem Maior -->
+      <div id="questionPrompt" class="text-center my-1"></div>
       
-      <div id="optionsGrid" class="grid grid-cols-3 gap-1.5 md:gap-3"></div>
+      <div id="optionsGrid" class="grid grid-cols-3 gap-2 md:gap-3"></div>
     </div>
   </footer>
 
-  <!-- Welcome Modal -->
+  <!-- Welcome Modal (Fontes Maiores) -->
   <div id="modalOverlay" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
-    <div class="bg-white border-4 border-slate-800 rounded-3xl p-4 md:p-6 max-w-md w-full text-center shadow-2xl flex flex-col items-center gap-3 my-auto">
-      <div class="text-4xl md:text-5xl animate-bounce">🚌🦁🐼</div>
-      <h2 class="text-xl md:text-2xl font-black">Busão dos Bichos!</h2>
-      <div class="text-xs md:text-sm font-semibold text-slate-600 flex flex-col gap-2 text-left bg-sky-50 p-3 md:p-4 rounded-2xl border-2 border-sky-200">
+    <div class="bg-white border-4 border-slate-800 rounded-3xl p-5 md:p-8 max-w-md w-full text-center shadow-2xl flex flex-col items-center gap-4 my-auto">
+      <div class="text-5xl md:text-6xl animate-bounce">🚌🦁🐼</div>
+      <h2 class="text-2xl md:text-3xl font-black">Busão dos Bichos!</h2>
+      <div class="text-sm md:text-base font-semibold text-slate-700 flex flex-col gap-3 text-left bg-sky-50 p-4 md:p-5 rounded-2xl border-2 border-sky-200">
         <p>🎯 <strong>10 desafios</strong> de adição e subtração com o busão!</p>
         <p>🔍 Às vezes você vai descobrir <strong>quantos ficaram</strong>, às vezes <strong>quantos havia no início</strong>, às vezes <strong>quantos entraram ou saíram</strong>.</p>
         <p>👀 Preste atenção em cada pista. Escolha a <strong>resposta certa</strong> entre 3 opções!</p>
         <p>💡 Acertos de primeira valem mais pontos!</p>
       </div>
-      <button id="startModalBtn" class="w-full bg-emerald-400 hover:bg-emerald-300 text-slate-900 font-black text-base md:text-lg py-2.5 md:py-3 rounded-xl border-3 border-slate-800 shadow-[0_4px_0_#1e293b] active:translate-y-1 active:shadow-none transition-all">
+      <button id="startModalBtn" class="w-full bg-emerald-400 hover:bg-emerald-300 text-slate-900 font-black text-lg md:text-xl py-3 md:py-4 rounded-xl border-3 border-slate-800 shadow-[0_4px_0_#1e293b] active:translate-y-1 active:shadow-none transition-all mt-2">
         Iniciar Jogo 🚀
       </button>
     </div>
@@ -229,15 +236,15 @@
 
   <!-- End Modal -->
   <div id="endModal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
-    <div class="bg-white border-4 border-slate-800 rounded-3xl p-4 md:p-6 max-w-md w-full text-center shadow-2xl flex flex-col items-center gap-3 my-auto">
-      <div class="text-5xl md:text-6xl">🏆</div>
-      <h2 class="text-xl md:text-2xl font-black">Você completou os 10 desafios!</h2>
-      <div class="bg-amber-100 border-2 border-amber-500 rounded-2xl p-3 md:p-4 w-full">
-        <div class="text-xs md:text-sm font-bold text-amber-700">PONTUAÇÃO FINAL</div>
-        <div class="text-3xl md:text-4xl font-black text-amber-900"><span id="finalScore">0</span> ⭐</div>
+    <div class="bg-white border-4 border-slate-800 rounded-3xl p-5 md:p-8 max-w-md w-full text-center shadow-2xl flex flex-col items-center gap-4 my-auto">
+      <div class="text-6xl md:text-7xl">🏆</div>
+      <h2 class="text-2xl md:text-3xl font-black">Você completou os 10 desafios!</h2>
+      <div class="bg-amber-100 border-2 border-amber-500 rounded-2xl p-4 md:p-5 w-full">
+        <div class="text-sm md:text-base font-bold text-amber-700">PONTUAÇÃO FINAL</div>
+        <div class="text-4xl md:text-5xl font-black text-amber-900"><span id="finalScore">0</span> ⭐</div>
       </div>
-      <div id="finalStats" class="text-xs md:text-sm font-semibold text-slate-600"></div>
-      <button id="playAgainBtn" class="w-full bg-emerald-400 hover:bg-emerald-300 text-slate-900 font-black text-base md:text-lg py-2.5 md:py-3 rounded-xl border-3 border-slate-800 shadow-[0_4px_0_#1e293b] active:translate-y-1 active:shadow-none transition-all">
+      <div id="finalStats" class="text-sm md:text-base font-semibold text-slate-600"></div>
+      <button id="playAgainBtn" class="w-full bg-emerald-400 hover:bg-emerald-300 text-slate-900 font-black text-lg md:text-xl py-3 md:py-4 rounded-xl border-3 border-slate-800 shadow-[0_4px_0_#1e293b] active:translate-y-1 active:shadow-none transition-all mt-2">
         Jogar de Novo 🔄
       </button>
     </div>
@@ -817,7 +824,7 @@
   }
 
   // ============================================================
-  // MOSTRAR OPÇÕES
+  // MOSTRAR OPÇÕES (Pergunta Grande e Destacada)
   // ============================================================
   function showOptions(q) {
     currentOptions = generateOptions(q);
@@ -837,7 +844,8 @@
       optionButtons.push(btn);
     });
 
-    questionPrompt.innerHTML = `<span class="inline-block bg-indigo-600 text-white font-black text-xs md:text-lg px-4 md:px-6 py-1.5 md:py-2.5 rounded-lg md:rounded-xl border-2 md:border-3 border-slate-800 shadow-[0_2px_0_#1e293b]">${getPrompt(q)}</span>`;
+    // Fonte da pergunta grande e alto contraste
+    questionPrompt.innerHTML = `<span class="inline-block bg-indigo-600 text-white font-black text-lg md:text-2xl lg:text-3xl px-6 md:px-10 py-2.5 md:py-4 rounded-xl md:rounded-2xl border-3 md:border-4 border-slate-800 shadow-[0_4px_0_#1e293b]">${getPrompt(q)}</span>`;
     
     statusIcon.textContent = "🎯";
     statusMsg.textContent = "Hora de responder! Escolha abaixo.";
